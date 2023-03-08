@@ -8,3 +8,6 @@ target_sources(orb_mech
 
 target_include_directories(orb_mech PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+if(BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
