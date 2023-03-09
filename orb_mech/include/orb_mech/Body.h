@@ -4,8 +4,20 @@ namespace orb_mech {
 
 class Body {
 public:
-  Body(float mass);
+  /**
+   * Create a body
+   * @param mass_kg - mass of object in kilograms - must be >0
+   *
+   * @throws std::domain_error if mass_kg is less than 0
+   */
+  Body(float mass_kg);
 
+  /**
+   * Get the standard gravitational parameter (G * M) for this body
+   * Using mks system - N*m^2/kg units (alternatively m^3/s^2)
+   *
+   * @return standard gravitational parameter (m^3/s^2)
+   */
   float stdGravParam() const {return stdGravParam_;}
 
 private:
