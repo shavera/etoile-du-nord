@@ -10,7 +10,7 @@ public:
    *
    * @throws std::domain_error if mass_kg is less than 0
    */
-  Body(float mass_kg);
+  explicit Body(float mass_kg);
 
   /**
    * Get the standard gravitational parameter (G * M) for this body
@@ -18,7 +18,7 @@ public:
    *
    * @return standard gravitational parameter (m^3/s^2)
    */
-  float stdGravParam() const {return stdGravParam_;}
+  [[nodiscard]] float stdGravParam() const {return stdGravParam_;}
 
 private:
   const float mass_{0};
