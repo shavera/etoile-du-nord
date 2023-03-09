@@ -7,7 +7,7 @@ namespace orb_mech {
 
 namespace {
 constexpr float kGravConstant{6.67430e-11}; // in N*m^2/kg^2 units
-}
+} // namespace
 
 Body::Body(float mass)
   : mass_{mass}
