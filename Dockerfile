@@ -18,3 +18,4 @@ RUN --mount=type=bind,src=source/,dst=/tmp/edn <<EOT
     cmake --build .
 EOT
 
+CMD ["ctest"]
