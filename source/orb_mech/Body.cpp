@@ -1,7 +1,5 @@
 #include "orb_mech/Body.h"
 
-#include <stdexcept>
-#include <sstream>
 
 namespace orb_mech {
 
