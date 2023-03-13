@@ -8,7 +8,6 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
-    name: setup
     steps:
       - name: Checkout
         uses: actions/checkout@v3.3.0
@@ -20,10 +19,17 @@ jobs:
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
-          
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
       - name: Build
         run: docker build -t edn-dev .
         env:
           DOCKER_BUILDKIT: 1
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
       - name: Test
         run: docker run -t edn-dev
