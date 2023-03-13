@@ -1,13 +1,15 @@
 name: run-ci
 run-name: ${{ github.actor }} is running ci
-on: [push]
+on:
+  pull-request:
+    branches:
+      - main
+      - dev
+
 jobs:
-  check-bats-version:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '14'
-      - run: npm install -g bats
-      - run: bats -v
+  build:
+    name: build
+    run: docker build -t edn-dev .
+  test:
+    name: test
+    run: docker run -t edn-dev
