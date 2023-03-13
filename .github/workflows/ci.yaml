@@ -1,5 +1,4 @@
 name: run-ci
-run-name: ${{ github.actor }} is running ci
 on:
   pull_request:
     branches:
@@ -21,5 +20,6 @@ jobs:
         with:
           username: ${{secrets.DOCKERHUB_USERNAME}}
           password: ${{secrets.DOCKERHUB_TOKEN}}
+          
       - run: docker build -t edn-dev .
       - run: docker run -t edn-dev
