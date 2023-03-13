@@ -42,9 +42,5 @@ TEST(BodyTest, stdGravParam){
   }
 }
 
-TEST(DummyTest, Dummy){
-  EXPECT_TRUE(false);
-}
-
 } // namespace
 } // namespace orb_mech
