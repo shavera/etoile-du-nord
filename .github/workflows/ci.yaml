@@ -23,9 +23,5 @@ jobs:
         run: docker build -t edn-dev .
         env:
           DOCKER_BUILDKIT: 1
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
       - name: Test
         run: docker run -t edn-dev
