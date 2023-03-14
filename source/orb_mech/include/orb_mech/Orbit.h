@@ -1,12 +1,13 @@
 #pragma once
 
+#include "units.h"
+
 namespace orb_mech{
 
 struct OrbitalElements{
-  double
-      semiMajorAxis,
-      eccentricity,
-      inclination,
+  Meter semiMajorAxis;
+  double eccentricity;
+  Angle inclination,
       longitudeOfAscendingNode,
       argumentOfPeriapsis,
       meanAnomalyAtEpoch;

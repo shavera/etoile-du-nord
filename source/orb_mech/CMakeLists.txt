@@ -14,6 +14,8 @@ target_include_directories(orb_mech PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(orb_mech PUBLIC Eigen3::Eigen)
 
+target_compile_features(orb_mech PUBLIC cxx_std_20)
+
 if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()

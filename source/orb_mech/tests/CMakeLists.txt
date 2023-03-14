@@ -6,7 +6,8 @@ target_sources(orb_mech_tests
     PRIVATE
         BodyTest.cpp
         CartesianVectorTest.cpp
-        OrbitTest.cpp)
+        OrbitTest.cpp
+        UnitsTest.cpp)
 
 target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gtest_main)
 include(GoogleTest)
