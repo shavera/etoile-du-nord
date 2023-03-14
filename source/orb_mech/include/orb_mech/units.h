@@ -8,16 +8,34 @@
  * my own (very simple) strong typing so I can keep moving forward.
  */
 
-struct Meter{
+struct Meters{
   double m;
 };
 
-struct Kilogram{
+struct Kilograms{
   double kg;
 };
 
 struct Seconds{
   double s;
+};
+
+struct MetersPerSecond{
+  double mps;
+};
+
+struct StandardGravParam{
+  double mu;
+};
+
+// nominally (m/s)^2 - energy of orbit without dealing with object mass
+struct SpecificEnergy{
+  double e;
+};
+
+// nominally m^2/s - angular momentum without dealing with object mass
+struct SpecificAngularMomentum{
+  double h;
 };
 
 // normalizes to ±Pi
