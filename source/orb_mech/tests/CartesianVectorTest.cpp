@@ -30,11 +30,10 @@ TEST_F(CartesianVectorTest, norm) {
 }
 
 TEST_F(CartesianVectorTest, normalizedVector) {
-  // todo
-//  CartesianVector normalizedVector{vector.normalizedVector()};
-//  EXPECT_EQ(expectedX / expectedNorm, normalizedVector.x());
-//  EXPECT_EQ(expectedY / expectedNorm, normalizedVector.y());
-//  EXPECT_EQ(expectedZ / expectedNorm, normalizedVector.z());
+  CartesianVector normalizedVector{vector.normalizedVector()};
+  EXPECT_EQ(expectedX / expectedNorm, normalizedVector.x());
+  EXPECT_EQ(expectedY / expectedNorm, normalizedVector.y());
+  EXPECT_EQ(expectedZ / expectedNorm, normalizedVector.z());
 }
 
 class CartesianVectorOperationsTest : public ::testing::Test {

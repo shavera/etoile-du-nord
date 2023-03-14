@@ -4,7 +4,9 @@ add_executable(orb_mech_tests)
 
 target_sources(orb_mech_tests
     PRIVATE
-        BodyTest.cpp)
+        BodyTest.cpp
+        CartesianVectorTest.cpp
+        OrbitTest.cpp)
 
 target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gtest_main)
 include(GoogleTest)

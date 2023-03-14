@@ -7,7 +7,8 @@ find_package(Eigen3 3.4 REQUIRED NO_MODULE)
 target_sources(orb_mech
     PRIVATE
         Body.cpp
-        CartesianVector.cpp)
+        CartesianVector.cpp
+        Orbit.cpp)
 
 target_include_directories(orb_mech PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

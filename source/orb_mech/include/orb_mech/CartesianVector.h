@@ -9,10 +9,15 @@ namespace orb_mech {
 class CartesianVector {
 public:
   CartesianVector(double x, double y, double z);
+  CartesianVector(const CartesianVector& other) = default;
+  CartesianVector(CartesianVector&& other) = default;
+  CartesianVector& operator=(const CartesianVector& other) = default;
+  CartesianVector& operator=(CartesianVector&& other) = default;
+  ~CartesianVector() = default;
 
-  [[nodiscard]] inline double x() const;
-  [[nodiscard]] inline double y() const;
-  [[nodiscard]] inline double z() const;
+  [[nodiscard]] double x() const;
+  [[nodiscard]] double y() const;
+  [[nodiscard]] double z() const;
 
   [[nodiscard]] double norm() const;
 
@@ -26,6 +31,10 @@ public:
 private:
   explicit CartesianVector();
   Eigen::Vector3d vector_;
+};
+
+struct StateVector{
+  CartesianVector position, velocity;
 };
 
 } // namespace orb_mech
