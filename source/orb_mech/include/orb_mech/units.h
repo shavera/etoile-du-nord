@@ -38,6 +38,11 @@ struct SpecificAngularMomentum{
   double h;
 };
 
+// angular velocity in radians per second
+struct RadiansPerSecond{
+  double w;
+};
+
 // normalizes to ±Pi
 class Angle{
 public:

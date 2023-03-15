@@ -8,7 +8,8 @@ target_sources(orb_mech
     PRIVATE
         Body.cpp
         CartesianVector.cpp
-        Orbit.cpp)
+        Orbit.cpp
+        OrbitalPhysics.cpp)
 
 target_include_directories(orb_mech PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
