@@ -24,9 +24,9 @@ TEST(SpecificEnergyTest, specificOrbitalEnergy){
                                PositionVector {{1}, {0}, {0}},
                                VelocityVector{{0}, {1}, {0}}
                            }};
-    // 1^2/2 - 1/1 = 1/2
+    // 1^2/2 - 1/1 = -1/2
     const auto energy = energyCalc(input);
-    EXPECT_EQ(0.5, energy.e);
+    EXPECT_EQ(-0.5, energy.e);
   }
   {
     SCOPED_TRACE("parabolic orbit");
@@ -166,8 +166,8 @@ TEST(EccentricityVectorTest, eccentricityVector){
     // assumes that angular momentum calculator is tested well above:
     const SpecAngMomVector angMomVector{OrbitalPhysicsParameters::specificAngularMomentum(stateVector)};
     const StandardGravParam stdGravParam{2.78};
-    // the following was hand calculated, so may need to be "close enough"
-    const CartesianVector expectedEccentricityVector{94.8790166312, -0.6505767415, 26.8485500006};
+    // the following was hand calculated (in python), so may need to be "close enough"
+    const CartesianVector expectedEccentricityVector{94.85316256811534, -0.5780592474686674, 26.70603736002381};
 
     const CartesianVector eccVector{OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, angMomVector)};
 
@@ -181,10 +181,12 @@ TEST(EccentricityVectorTest, eccentricityVector){
     const auto& rvec{stateVector.position.rawVector()};
     const auto& vvec{stateVector.velocity.rawVector()};
     const auto mu = stdGravParam.mu;
-    const double vSquared = (vvec.dot(vvec));
-    const double rCoeff = (vSquared/mu - 1.0/rvec.norm());
+    const double vSquared = (std::pow(stateVector.speed.mps, 2));
+    const double rCoeff = (vSquared/mu - 1.0/stateVector.distance.m);
     const double vCoeff = rvec.dot(vvec)/mu;
-    const CartesianVector alternateExpectedEcc = rCoeff * rvec + vCoeff * vvec;
+    const CartesianVector erVec = rCoeff*rvec;
+    const CartesianVector evVec = vCoeff*vvec;
+    const CartesianVector alternateExpectedEcc = erVec - evVec;
 
     EXPECT_LT(alternateExpectedEcc.separation(eccVector), 1e-6);
   }
@@ -201,9 +203,9 @@ TEST(EccentricityVectorTest, eccentricityVector){
     // real ang. momentum is +50 Z
     const SpecAngMomVector angMomVector{{20}, {0}, {0}};
     const StandardGravParam stdGravParam{10};
-    // Vxh = + 100 Z -> Vxh/mu = +10 Z.
+    // Vxh = - 100 Z -> Vxh/mu = -10 Z.
     // unit R is just unit X
-    const CartesianVector exxpectedEccVec{1, 0, 10};
+    const CartesianVector exxpectedEccVec{-1, 0, -10};
 
     const CartesianVector actualEccVec{OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, angMomVector)};
     EXPECT_EQ(actualEccVec, exxpectedEccVec);

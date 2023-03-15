@@ -113,16 +113,22 @@ public:
   const ArbitraryVector arbitraryVector{{expectedX}, {expectedY}, {expectedZ}};
 };
 
-TEST_F(VectorQuantityTest, x) {
-  EXPECT_EQ(expectedX, arbitraryVector.x().someValue);
-}
+TEST_F(VectorQuantityTest, basicGetters) {
+  {
+      SCOPED_TRACE("Three unit constructor");
+      EXPECT_EQ(expectedX, arbitraryVector.x().someValue);
+      EXPECT_EQ(expectedY, arbitraryVector.y().someValue);
+      EXPECT_EQ(expectedZ, arbitraryVector.z().someValue);
+  }
 
-TEST_F(VectorQuantityTest, y) {
-  EXPECT_EQ(expectedY, arbitraryVector.y().someValue);
-}
+  {
+      SCOPED_TRACE("Vector initialized constructor");
+      const ArbitraryVector vectorInitializedVector{vector};
 
-TEST_F(VectorQuantityTest, z) {
-  EXPECT_EQ(expectedZ, arbitraryVector.z().someValue);
+      EXPECT_EQ(expectedX, vectorInitializedVector.x().someValue);
+      EXPECT_EQ(expectedY, vectorInitializedVector.y().someValue);
+      EXPECT_EQ(expectedZ, vectorInitializedVector.z().someValue);
+  }
 }
 
 TEST_F(VectorQuantityTest, norm) {

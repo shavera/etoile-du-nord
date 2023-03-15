@@ -69,6 +69,11 @@ public:
   VectorQuantity(UnitType x, UnitType y, UnitType z)
       : rawVector_{ deconstruct(x), deconstruct(y), deconstruct(z)}
   {}
+
+  explicit VectorQuantity(CartesianVector initialVector)
+      : rawVector_{std::move(initialVector)}
+  {}
+
   VectorQuantity(const VectorQuantity& other) = default;
   VectorQuantity(VectorQuantity&& other) noexcept = default;
   VectorQuantity& operator=(const VectorQuantity& other) = default;
