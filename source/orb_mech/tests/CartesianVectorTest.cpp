@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 namespace orb_mech {
+
 namespace {
 
 class CartesianVectorTest : public ::testing::Test {
@@ -10,18 +11,12 @@ class CartesianVectorTest : public ::testing::Test {
 public:
   const double expectedX{1.2345}, expectedY{-2.341}, expectedZ{3.0};
   const double expectedNorm{std::sqrt(std::pow(expectedX, 2) + std::pow(expectedY, 2) + std::pow(expectedZ, 2))};
-  CartesianVector vector{expectedX, expectedY, expectedZ};
+  const CartesianVector vector{expectedX, expectedY, expectedZ};
 };
 
-TEST_F(CartesianVectorTest, x) {
+TEST_F(CartesianVectorTest, basicGetters) {
   EXPECT_EQ(expectedX, vector.x());
-}
-
-TEST_F(CartesianVectorTest, y) {
   EXPECT_EQ(expectedY, vector.y());
-}
-
-TEST_F(CartesianVectorTest, z) {
   EXPECT_EQ(expectedZ, vector.z());
 }
 
@@ -34,6 +29,23 @@ TEST_F(CartesianVectorTest, normalizedVector) {
   EXPECT_EQ(expectedX / expectedNorm, normalizedVector.x());
   EXPECT_EQ(expectedY / expectedNorm, normalizedVector.y());
   EXPECT_EQ(expectedZ / expectedNorm, normalizedVector.z());
+}
+
+TEST_F(CartesianVectorTest, scale){
+  {
+    SCOPED_TRACE("member operator (scalar on right)");
+    const CartesianVector expectedVector{2.469, -4.682, 6.0};
+    const CartesianVector scaledVector{vector * 2.0};
+    EXPECT_EQ(expectedVector, scaledVector);
+  }
+  {
+    SCOPED_TRACE("static global operator (scalar on left)");
+    const CartesianVector expectedVector{-4.32075, 8.1935, -10.5};
+    const CartesianVector scaledVector{-3.5 * vector};
+    EXPECT_NEAR(expectedVector.x(), scaledVector.x(), 1e-8);
+    EXPECT_NEAR(expectedVector.y(), scaledVector.y(), 1e-8);
+    EXPECT_NEAR(expectedVector.z(), scaledVector.z(), 1e-8);
+  }
 }
 
 class CartesianVectorOperationsTest : public ::testing::Test {
@@ -61,16 +73,85 @@ TEST_F(CartesianVectorOperationsTest, cross) {
   EXPECT_NEAR(expectedVector.z(), actualVector.z(), 1e-4);
 }
 
+TEST_F(CartesianVectorOperationsTest, equality){
+  EXPECT_EQ(leftVector, leftVector);
+  EXPECT_NE(leftVector, rightVector);
+}
+
+TEST_F(CartesianVectorOperationsTest, addition) {
+  const CartesianVector expectedVector{3.61, 0.98, 0.95};
+
+  const auto actualVector = leftVector + rightVector;
+  EXPECT_LT(expectedVector.separation(actualVector), 1e-10);
+}
+
+TEST_F(CartesianVectorOperationsTest, subtraction) {
+  const CartesianVector expectedVector{-1.15, -7.46, 3.63};
+
+  const auto actualVector = leftVector - rightVector;
+  // since we use subtraction in the 'separation' method below, want to check
+  // each element individually rather than using separation to avoid circular test
+  EXPECT_NEAR(expectedVector.x(), actualVector.x(), 1e-10);
+  EXPECT_NEAR(expectedVector.y(), actualVector.y(), 1e-10);
+  EXPECT_NEAR(expectedVector.z(), actualVector.z(), 1e-10);
+}
+
+TEST_F(CartesianVectorOperationsTest, separation) {
+  const double expectedSeparation{8.3756193801};
+
+  const double actualSeparation{leftVector.separation(rightVector)};
+  EXPECT_NEAR(expectedSeparation, actualSeparation, 1e-10);
+}
+
+class VectorQuantityTest : public CartesianVectorTest{
+public:
+  struct ArbitraryUnitType{
+    double someValue;
+  };
+  using ArbitraryVector = VectorQuantity<ArbitraryUnitType>;
+
+  const ArbitraryVector arbitraryVector{{expectedX}, {expectedY}, {expectedZ}};
+};
+
+TEST_F(VectorQuantityTest, x) {
+  EXPECT_EQ(expectedX, arbitraryVector.x().someValue);
+}
+
+TEST_F(VectorQuantityTest, y) {
+  EXPECT_EQ(expectedY, arbitraryVector.y().someValue);
+}
+
+TEST_F(VectorQuantityTest, z) {
+  EXPECT_EQ(expectedZ, arbitraryVector.z().someValue);
+}
+
+TEST_F(VectorQuantityTest, norm) {
+  EXPECT_EQ(expectedNorm, arbitraryVector.norm().someValue);
+}
+
+TEST_F(VectorQuantityTest, normalizedVector) {
+  ArbitraryVector normalizedVector{arbitraryVector.normalizedVector()};
+  EXPECT_EQ(expectedX / expectedNorm, normalizedVector.x().someValue);
+  EXPECT_EQ(expectedY / expectedNorm, normalizedVector.y().someValue);
+  EXPECT_EQ(expectedZ / expectedNorm, normalizedVector.z().someValue);
+}
+
+TEST_F(VectorQuantityTest, equality){
+  const ArbitraryVector otherVector{{1}, {2}, {3}};
+  EXPECT_EQ(arbitraryVector, arbitraryVector);
+  EXPECT_NE(arbitraryVector, otherVector);
+}
+
 TEST(StateVectorTest, distance) {
   const StateVector stateVector{PositionVector{{3},{-14}, {18}},
                                 VelocityVector{{}, {}, {}}};
   // 3, 14, 18 = 23 pythagorean quadruple
-  EXPECT_EQ(23, stateVector.speed.mps);
+  EXPECT_EQ(23, stateVector.distance.m);
 }
 
 TEST(StateVectorTest, speed) {
   const StateVector stateVector{PositionVector{{},{}, {}},
-                                VelocityVector{{-12}, {16}, {021}}};
+                                VelocityVector{{-12}, {16}, {21}}};
   // 12, 16, 21 = 29 pythagorean quadruple
   EXPECT_EQ(29, stateVector.speed.mps);
 }

@@ -30,10 +30,38 @@ public:
   [[nodiscard]] double dot(const CartesianVector& other) const;
   [[nodiscard]] CartesianVector cross(const CartesianVector& other) const;
 
+  /// Magnitude of vector of difference between this vector and other
+  /// useful for checking if two vectors are nearly equal
+  [[nodiscard]] double separation(const CartesianVector& other) const;
+
+  bool operator==(const CartesianVector& other) const;
+  bool operator!=(const CartesianVector& other) const;
+
+  [[nodiscard]] CartesianVector operator*(double scale) const;
+
+  [[nodiscard]] CartesianVector operator+(const CartesianVector& other) const;
+  [[nodiscard]] CartesianVector operator-(const CartesianVector& other) const;
+
 private:
-  explicit CartesianVector();
+  explicit CartesianVector()
+      : CartesianVector(Eigen::Vector3d{0,0,0})
+  {}
+
+  explicit CartesianVector(Eigen::Vector3d vector)
+      : vector_{std::move(vector)}
+  {}
+
   Eigen::Vector3d vector_;
 };
+
+static CartesianVector operator*(double scale, const CartesianVector& vec){
+  return CartesianVector{vec.x()*scale, vec.y()*scale, vec.z()*scale};
+}
+
+static std::ostream& operator<<(std::ostream& os, const CartesianVector& vec){
+  os << "{" << vec.x() << ", " << vec.y() << ", " << vec.z() << "}";
+  return os;
+}
 
 template<typename UnitType>
 class VectorQuantity{
@@ -48,22 +76,30 @@ public:
   ~VectorQuantity() = default;
 
   [[nodiscard]] UnitType x() const{return UnitType{rawVector_.x()};}
-  [[nodiscard]] UnitType y() const{return UnitType{rawVector_.x()};}
-  [[nodiscard]] UnitType z() const{return UnitType{rawVector_.x()};}
+  [[nodiscard]] UnitType y() const{return UnitType{rawVector_.y()};}
+  [[nodiscard]] UnitType z() const{return UnitType{rawVector_.z()};}
 
   [[nodiscard]] UnitType norm() const{return UnitType{rawVector_.norm()};}
 
-  [[nodiscard]] VectorQuantity normalizedVector() const{
-    VectorQuantity vectorQuantity;
+  [[nodiscard]] VectorQuantity<UnitType> normalizedVector() const{
+    VectorQuantity<UnitType> vectorQuantity;
     vectorQuantity.rawVector_ = rawVector_.normalizedVector();
     return vectorQuantity;
+  }
+
+  bool operator==(const VectorQuantity<UnitType>& other) const{
+    return rawVector_ == other.rawVector_;
+  }
+
+  bool operator!=(const VectorQuantity<UnitType>& other) const{
+    return rawVector_ != other.rawVector_;
   }
 
   // removed dot and cross products since those have different units than the
   // type of the base vector.
   // to do maths with them without investing in a full units library, access
   // to the basic vector is provided
-  const CartesianVector& rawVector() const{return rawVector_;}
+  [[nodiscard]] const CartesianVector& rawVector() const{return rawVector_;}
 
 private:
   CartesianVector rawVector_;
@@ -95,7 +131,5 @@ struct StateVector{
   /// magnitude of velocity vector
   const MetersPerSecond speed;
 };
-
-
 
 } // namespace orb_mech
