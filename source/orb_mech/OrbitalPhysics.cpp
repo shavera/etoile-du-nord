@@ -2,11 +2,11 @@
 
 namespace orb_mech{
 
-SpecificEnergy OrbitalPhysics::specificOrbitalEnergy(StandardGravParam stdGravParam, MetersPerSecond speed, Meters distance) {
+SpecificEnergy OrbitalPhysics::specificOrbitalEnergy(StandardGravParam stdGravParam, const StateVector& stateVector) {
   return {};
 }
 
-SpecAngMomVector OrbitalPhysics::specificAngularMomentum(const PositionVector& position, const VelocityVector& velocity) {
+SpecAngMomVector OrbitalPhysics::specificAngularMomentum(const StateVector& stateVector) {
   return {{0}, {0}, {0}};
 }
 
@@ -27,7 +27,7 @@ OrbitalPhysics::OrbitalPhysics(
   , eccentricityVector_{std::move(eccentricityVector)}
 {}
 
-OrbitalElements OrbitalPhysics::semiMajorAxis() const{
+Meters OrbitalPhysics::semiMajorAxis() const{
   return {};
 }
 

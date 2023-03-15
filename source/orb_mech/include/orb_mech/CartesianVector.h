@@ -81,8 +81,19 @@ using VelocityVector = VectorQuantity<MetersPerSecond>;
 using SpecAngMomVector = VectorQuantity<SpecificAngularMomentum>;
 
 struct StateVector{
-  PositionVector position;
-  VelocityVector velocity;
+  StateVector(PositionVector _position, VelocityVector _velocity)
+      : position{std::move(_position)}
+      , velocity{std::move(_velocity)}
+      , distance{position.norm()}
+      , speed{velocity.norm()}
+    {}
+
+  const PositionVector position;
+  const VelocityVector velocity;
+  /// magnitude of position vector
+  const Meters distance;
+  /// magnitude of velocity vector
+  const MetersPerSecond speed;
 };
 
 

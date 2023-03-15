@@ -61,5 +61,19 @@ TEST_F(CartesianVectorOperationsTest, cross) {
   EXPECT_NEAR(expectedVector.z(), actualVector.z(), 1e-4);
 }
 
+TEST(StateVectorTest, distance) {
+  const StateVector stateVector{PositionVector{{3},{-14}, {18}},
+                                VelocityVector{{}, {}, {}}};
+  // 3, 14, 18 = 23 pythagorean quadruple
+  EXPECT_EQ(23, stateVector.speed.mps);
+}
+
+TEST(StateVectorTest, speed) {
+  const StateVector stateVector{PositionVector{{},{}, {}},
+                                VelocityVector{{-12}, {16}, {021}}};
+  // 12, 16, 21 = 29 pythagorean quadruple
+  EXPECT_EQ(29, stateVector.speed.mps);
+}
+
 } // namespace
 } // namespace orb_mech

@@ -7,7 +7,7 @@
 namespace orb_mech{
 
 struct OrbitalElements{
-  Meter semiMajorAxis;
+  Meters semiMajorAxis;
   double eccentricity;
   Angle inclination,
       longitudeOfAscendingNode,

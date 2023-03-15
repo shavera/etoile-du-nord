@@ -83,10 +83,10 @@ private:
   double rad_;
 };
 
-Angle operator+(const Angle& a1, const Angle& a2){
+static Angle operator+(const Angle& a1, const Angle& a2){
   return Angle::radians(a1.getRadians() + a2.getRadians());
 }
 
-Angle operator-(const Angle& a1, const Angle& a2){
+static Angle operator-(const Angle& a1, const Angle& a2){
   return Angle::radians(a1.getRadians() - a2.getRadians());
 }

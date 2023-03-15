@@ -32,20 +32,66 @@ namespace orb_mech{
  * Thus, we can characterise orbital perturbations solely by changes to these physical fields without
  * having to time integrate a "force" view on the object.
  *
- * @warning these equations nominally use mks units, and I haven't spent any time
- * on the conversion to other systems
+ * @note these equations are pretty much unit-invariant so long as the units are consistent between inputs.
+ * StandardGravParam absorbs a lot of the specific unit details by its choice of gravitational constant,
+ * but that is determined elsewhere when it's handed to this class.
  */
 class OrbitalPhysics {
 public:
   /**
-   * Calculate the characteristic energy of the orbit given an object's speed
+   * @brief Calculate the specific orbital energy for an orbit
+   *
+   * Specific orbital energy is the energy of the object in orbit divided by its mass. Since we are
+   * explicitly treating our simulation as only having a central mass and neglecting the object
+   * mass terms, the specific orbital energy is constant for any object in an orbit.
+   *
+   * Consider the equation e=v^2/2 - mu/r = -0.5 *(mu^2/h^2)(1-e^2)=-mu/2a
+   * where v is the velocity, r is the distance, mu is the std. grav. param,
+   * h is specific angular momentum, a is the semi major axis. Each form of the
+   * equation contains some mathematical singularity, but that need not correspond
+   * to a physical one. e.g. imagine an object dropped from some height that can pass through
+   * the center of mass of the body, as it passes through the center of mass, r=0. Throughout
+   * the orbit, h=0 because there's no angular momentum to the orbit. But the orbit has a
+   * semi-major axis 'a' which is the height from which it was dropped, which is nonzero.
+   *
+   * This helper function will likely only be used to initialize an orbit, and then future propagation
+   * will simply use the orbital information to determine position, so the singularity shouldn't matter.
+   *
+   * Thus, given the extremely unlikely case where an orbit is attempted to be initialized "at" zero,
+   * the function is designed to forbid such a case and throw an exception.
+   *
+   * @throws std::runtime_error if position vector in stateVector has zero magnitude
+   *
    * @param stdGravParam The standard gravitational parameter G*M of the parent body at the root of the orbit
-   * @param speed the magnitude of the object's velocity in orbit around the body
-   * @param distance the magnitude of the radial vector between the body and the object
-   * @return specific orbital energy in
+   * @param stateVector the position and velocity of an object occupying this orbit at a moment in time
+   *
+   * @return specific orbital energy
    */
-  static SpecificEnergy specificOrbitalEnergy(StandardGravParam stdGravParam, MetersPerSecond speed, Meters distance);
-  static SpecAngMomVector specificAngularMomentum(const PositionVector& position, const VelocityVector& velocity);
+  static SpecificEnergy specificOrbitalEnergy(StandardGravParam stdGravParam, const StateVector& stateVector);
+
+  /**
+   * @brief Calculate the specific orbital angular momentum for an orbit
+   *
+   * Specific orbital angular momentum is the angular momentum of the object in orbit divided by its mass. Since we are
+   * explicitly treating our simulation as only having a central mass and neglecting the object
+   * mass terms, the specific orbital angular momentum is constant for any object in an orbit.
+   *
+   * @param stateVector the position and velocity of an object occupying this orbit at a moment in time
+   * @return Vector specifying the angular momentum of the orbit
+   */
+  static SpecAngMomVector specificAngularMomentum(const StateVector& stateVector);
+
+  /**
+   * @brief Calculate the eccentricity vector for an orbit
+   *
+   * The eccentricity vector is a vector pointing toward the periapsis from [apoapsis, center, focus] (all collinear in this case)
+   * with magnitude equal to the eccentricity of the orbit. This vector is used to determine the orientation of the
+   * orbit within its plane.
+   *
+   * @param stateVector the position and velocity of an object occupying this orbit at a moment in time
+   * @param specAngMomVector
+   * @return
+   */
   static CartesianVector eccentricityVector(const StateVector& stateVector, const SpecAngMomVector& specAngMomVector);
 
   OrbitalPhysics(

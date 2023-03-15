@@ -7,6 +7,7 @@ target_sources(orb_mech_tests
         BodyTest.cpp
         CartesianVectorTest.cpp
         OrbitTest.cpp
+        OrbitalPhysicsTest.cpp
         UnitsTest.cpp)
 
 target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gtest_main)
