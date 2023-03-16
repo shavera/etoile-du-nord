@@ -48,5 +48,11 @@ const std::vector<AngleTestDatum> angleTestData{
 INSTANTIATE_TEST_SUITE_P(AngleTests, AngleTests, ValuesIn(angleTestData),
                          [](const auto& info){return info.param.caseName;});
 
+TEST(AngleZeroTest, zeroAngle){
+  const Angle zero{Angle::Zero()};
+  EXPECT_EQ(0.0, zero.getRadians());
+  EXPECT_EQ(0.0, zero.getDegrees());
+}
+
 } // namespace orb_mech
 } // namespace units

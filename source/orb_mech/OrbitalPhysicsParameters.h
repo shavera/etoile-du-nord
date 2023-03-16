@@ -84,6 +84,8 @@ public:
       const StateVector& stateVector,
       const SpecAngMomVector& specAngMomVector);
 
+  [[nodiscard]] StandardGravParam stdGravParam() const{return stdGravParam_;}
+
   [[nodiscard]] SpecificEnergy specificEnergy() const{return specificEnergy_;}
 
   [[nodiscard]] const SpecAngMomVector& specificAngularMomentum() const{return specificAngularMomentum_;}

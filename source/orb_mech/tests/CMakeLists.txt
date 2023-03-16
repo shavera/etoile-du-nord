@@ -11,6 +11,6 @@ target_sources(orb_mech_tests
         OrbitalPhysicsParametersTest.cpp
         UnitsTest.cpp)
 
-target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gtest_main)
+target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gmock_main)
 include(GoogleTest)
 gtest_discover_tests(orb_mech_tests)

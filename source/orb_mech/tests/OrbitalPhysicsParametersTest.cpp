@@ -210,8 +210,11 @@ TEST(EccentricityVectorTest, eccentricityVector){
     const CartesianVector actualEccVec{OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, angMomVector)};
     EXPECT_EQ(actualEccVec, exxpectedEccVec);
   }
+}
 
-
+TEST(OrbitalPhysicsParametersCtorTest, TodoTest){
+  // need to add test of c'tor for the struct.
+  FAIL();
 }
 
 } // namespace
