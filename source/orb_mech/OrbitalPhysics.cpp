@@ -42,6 +42,17 @@ Angle f_inclination(const SpecAngMomVector& angularMomentum){
   return Angle::radians(std::acos(angularMomentum.z().h/angularMomentum.rawVector().norm()));
 }
 
+CartesianVector f_ascNodeVec(const SpecAngMomVector& angularMomentum){
+  return {-angularMomentum.y().h,angularMomentum.x().h,0};
+}
+
+Angle f_longitudeAscNode(const CartesianVector& ascNodeVec){
+  if(ascNodeVec.x() == 0 && ascNodeVec.y() == 0){
+    return Angle::Zero();
+  }
+  return Angle::radians(std::atan2(ascNodeVec.y(), ascNodeVec.x()));
+}
+
 } // namespace
 
 OrbitalPhysics::OrbitalPhysics(OrbitalPhysicsParameters physicsParameters)
@@ -55,6 +66,8 @@ OrbitalPhysics::Cache::Cache(const OrbitalPhysicsParameters& physParam)
   , period{f_period(physParam.stdGravParam(), semiMajorAxis, shape)}
   , sweep{f_sweep(shape, physParam.stdGravParam(), semiMajorAxis, physParam.specificAngularMomentum())}
   , inclination{f_inclination(physParam.specificAngularMomentum())}
+  , vectorOfAscendingNode{f_ascNodeVec(physParam.specificAngularMomentum())}
+  , longitudeOfAscendingNode{f_longitudeAscNode(vectorOfAscendingNode)}
 {}
 
 } // namespace orb_mech

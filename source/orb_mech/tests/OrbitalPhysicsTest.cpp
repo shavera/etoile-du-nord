@@ -52,6 +52,7 @@ public:
   // ang mom = (0, 14, -252) = 70*sqrt(13); h^2 = 63700; norm = (0, 1/(5sqrt(13), 18/(5sqrt(13))
   // rp = h^2 / 2*mu = 17.1052631579; M=sqrt(mu/(2*rp^3))=0.4313007372
   // incl = acos(18/5sqrt(13)) = 3.1798301199 degrees
+  // longAscNode = atan2(hx, -hy) = atan2(0, 14) = pi
   const OrbitalPhysics parabolicOrbit{parabolicOrbitParams};
 
   // choosing something roughly physical/coplanar with normal right hand orbit
@@ -65,6 +66,7 @@ public:
   const OrbitalPhysics hyperbolicOrbit{hyperbolicOrbitParams};
   // ang mom = {-23, 26, 258} = 13*sqrt(401); norm = (-23/13sqrt(401), 2/sqrt(401), 258/13sqrt(401))
   // incl = acos(258/13sqrt(401)) = 7.6629523069 degrees
+  // longAscNode = atan2(-23, -26) = -2.417342652841646 rad
 
   // choosing something roughly physical/coplanar with left hand orbit
   const OrbitalPhysicsParameters ellipticalOrbitParams{
@@ -76,7 +78,8 @@ public:
   };
   const OrbitalPhysics ellipticalOrbit{ellipticalOrbitParams};
   // ang mom = {58, 6, -240} = 10*sqrt(610); norm = (29/5sqrt(610), 3/5sqrt(610), -12*sqrt(2/305))
-  // incl = acos(-12*sqrt(2/305))=166.3442145528 degrees
+  // incl = acos(-12*sqrt(2/305))=166.3442145528 degrees - corresponds to left hand orbit choice
+  // longAscNode = atan2(58, -6) = 1.6738779353175968
 
   const std::map<std::string, const OrbitalPhysics&> testCaseMap{
       {"unitCircle", unitCircleOrbit},
@@ -92,7 +95,7 @@ public:
     Seconds period;
     RadiansPerSecond sweep;
     Angle inclination;
-//    Angle longitudeOfAscendingNode;
+    Angle longitudeOfAscendingNode;
 //    Angle argumentOfPeriapsis;
 //    double eccentricity;
   };
@@ -103,6 +106,7 @@ public:
         {1},
         {2*kPi},
         {1},
+        {Angle::Zero()},
         {Angle::Zero()}
        }},
       {"freeFall",
@@ -110,28 +114,32 @@ public:
         {0.5},
         {kPi/sqrt(2)},
         {2*sqrt(2)},
-        {Angle::radians(std::nan("radial orbit - no inclination"))}
+        {Angle::radians(std::nan("radial orbit - no inclination"))},
+        {Angle::Zero()}
        }},
       {"parabolic",
        {OrbitalPhysics::Shape::parabolic,
         {std::nan("parabolic orbit - no semiMajor Axis")},
         {std::numeric_limits<double>::infinity()},
         {0.4313007372},// subtly different meaning of "sweep" for parabolic orbits
-        {Angle::degrees(3.1798301199)}
+        {Angle::degrees(3.1798301199)},
+        {Angle::radians(kPi)}
        }},
       {"hyperbolic",
         {OrbitalPhysics::Shape::hyperbolic,
          {-64.2068965517},
          {std::numeric_limits<double>::infinity()},
          {0.083872062},
-        {Angle::degrees(7.6629523069)}
+        {Angle::degrees(7.6629523069)},
+        {Angle::radians(-2.417342652841646)}
        }},
       {"elliptical",
        {OrbitalPhysics::Shape::elliptical,
         {68.962962963},
         {83.3899855854},
         {0.0753470008},
-        {Angle::degrees(166.3442145528)}
+        {Angle::degrees(166.3442145528)},
+        {Angle::radians(1.6738779353175968)}
        }}
   };
 };
@@ -198,6 +206,17 @@ TEST_P(OrbitalPhysicsTest, inclination){
 
   // note: this comparison will do very poorly around ± pi radians, but probably not a problem in this test.
   EXPECT_NEAR(expectedInclination.getDegrees(), actualInclination.getDegrees(), 1e-9);
+}
+
+TEST_P(OrbitalPhysicsTest, longitudeOfAscendingNode){
+  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+  const Angle expectedLongAscNode = testExpectationsMap.at(GetParam()).longitudeOfAscendingNode;
+
+  const auto actualLongAscNode = orbit.longitudeOfAscendingNode();
+
+  Angle angularDifference= expectedLongAscNode - actualLongAscNode;
+
+  EXPECT_LT(std::fabs(angularDifference.getDegrees()), 0.1);
 }
 
 INSTANTIATE_TEST_SUITE_P(OrbitalPhysicsTest, OrbitalPhysicsTest,

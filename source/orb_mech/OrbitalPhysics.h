@@ -96,6 +96,7 @@ public:
    *
    * for values over 90°, this corresponds to a retrograde orbit
    *
+   * @todo
    * @note for radial orbits, those with no angular momentum, this value cannot be calculated
    * At least one of the angles won't be necessary since there's not a plane of the orbit, it might be
    * this one. For now, it will return NaN, but it may be safe to arbitrarily set it to zero
@@ -104,6 +105,12 @@ public:
    */
   [[nodiscard]] Angle inclination() const{ return cache_.inclination; }
 
+  /**
+   * Angle in fixed coordinates (corresponding to longitude on the parent body) at which an inclined
+   * node rises above the XY plane.
+   *
+   * For planar orbits, this will be nominally set to zero, as it doesn't really matter where it is located.
+   */
   [[nodiscard]] Angle longitudeOfAscendingNode() const{return cache_.longitudeOfAscendingNode;}
 
   [[nodiscard]] Angle argumentOfPeriapsis() const{return cache_.argumentOfPeriapsis;}
@@ -126,8 +133,9 @@ private:
     Meters semiMajorAxis;
     Seconds period;
     RadiansPerSecond sweep;
-    Angle inclination{Angle::Zero()};
-    Angle longitudeOfAscendingNode{Angle::Zero()};
+    Angle inclination;
+    CartesianVector vectorOfAscendingNode;
+    Angle longitudeOfAscendingNode;
     Angle argumentOfPeriapsis{Angle::Zero()};
     double eccentricity{0};
   } cache_;
