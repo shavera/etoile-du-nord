@@ -66,6 +66,8 @@ public:
   /**
    * Period - the time, in seconds, that it takes to complete one orbit.
    *
+   * Only can be defined for elliptical orbits, T=2*pi*sqrt((a^3)/mu)
+   *
    * @note parabolic and hyperbolic orbits never "complete" so there's no definition
    * for period in such cases. In this case, however, the physical meaning is an
    * "infinite" amount of time, so we'll use the std::infinity return value here.
@@ -73,8 +75,33 @@ public:
    * @return period in seconds if elliptical orbit; seconds = NaN else
    */
   [[nodiscard]] Seconds period() const{ return cache_.period; }
+
+  /**
+   * The mean motion of the object in orbit; how fast it would go in an "equivalent" circular orbit
+   *
+   * - For elliptical orbits, this is straightforward: 2pi/period - it goes 1 revolution (2pi radians) in one period
+   *   - if one didn't have period, this would look like sqrt(mu/a^3)
+   *
+   * - For hyperbolic orbits, a similar value can be calculated as sqrt(mu/(-a^3))
+   *
+   * - For parabolic orbits, one could bypass the eccentric anomaly approach altogether with a different formulation,
+   * but that formulation can be written such that there's a term sqrt(mu/(2*r_p^3)) where r_p is the distance of
+   * closest approach, found by taking angular momentum h: r_p=(h^2)/(2*mu) - this is the value that will be returned
+   * until I can get working around the eccentric anomaly calculations and see what I need for parabolic orbits.
+   */
   [[nodiscard]] RadiansPerSecond sweep() const{ return cache_.sweep; }
 
+  /**
+   * Angle that the orbital plane makes with the XY global coordinate plane
+   *
+   * for values over 90°, this corresponds to a retrograde orbit
+   *
+   * @note for radial orbits, those with no angular momentum, this value cannot be calculated
+   * At least one of the angles won't be necessary since there's not a plane of the orbit, it might be
+   * this one. For now, it will return NaN, but it may be safe to arbitrarily set it to zero
+   *
+   * @return angle between 0 and 180° (or pi radians)
+   */
   [[nodiscard]] Angle inclination() const{ return cache_.inclination; }
 
   [[nodiscard]] Angle longitudeOfAscendingNode() const{return cache_.longitudeOfAscendingNode;}

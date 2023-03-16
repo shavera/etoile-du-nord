@@ -20,12 +20,26 @@ Meters f_semiMajorAxis(const OrbitalPhysicsParameters& physParam, OrbitalPhysics
   return {-physParam.stdGravParam().mu/(2.0*physParam.specificEnergy().e)};
 }
 
-Seconds f_period(const StandardGravParam& stdGravParam, const Meters& semiMajorAxis, OrbitalPhysics::Shape shape){
+Seconds f_period(StandardGravParam stdGravParam, const Meters& semiMajorAxis, OrbitalPhysics::Shape shape){
   if(OrbitalPhysics::Shape::elliptical == shape){
     const auto aCubed = std::pow(semiMajorAxis.m, 3);
     return {2*kPi*sqrt(aCubed/stdGravParam.mu)};
   }
   return {std::numeric_limits<double>::infinity()};
+}
+
+RadiansPerSecond f_sweep(OrbitalPhysics::Shape shape, StandardGravParam stdGravParam, Meters semiMajorAxis, const SpecAngMomVector& angularMomentum){
+  if(OrbitalPhysics::Shape::parabolic == shape){
+    const double hSquared = angularMomentum.rawVector().dot(angularMomentum.rawVector());
+    const double r_p = hSquared/(2*stdGravParam.mu);
+    return {sqrt(stdGravParam.mu/(2*pow(r_p, 3)))};
+  }
+  const auto aCubedAbsVal = std::fabs(std::pow(semiMajorAxis.m, 3));
+  return {sqrt(stdGravParam.mu/aCubedAbsVal)};
+}
+
+Angle f_inclination(const SpecAngMomVector& angularMomentum){
+  return Angle::radians(std::acos(angularMomentum.z().h/angularMomentum.rawVector().norm()));
 }
 
 } // namespace
@@ -39,6 +53,8 @@ OrbitalPhysics::Cache::Cache(const OrbitalPhysicsParameters& physParam)
   : shape{f_shape(physParam.specificEnergy())}
   , semiMajorAxis{f_semiMajorAxis(physParam, shape)}
   , period{f_period(physParam.stdGravParam(), semiMajorAxis, shape)}
+  , sweep{f_sweep(shape, physParam.stdGravParam(), semiMajorAxis, physParam.specificAngularMomentum())}
+  , inclination{f_inclination(physParam.specificAngularMomentum())}
 {}
 
 } // namespace orb_mech
