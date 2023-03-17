@@ -156,6 +156,7 @@ TEST(EccentricityVectorTest, eccentricityVector){
     const CartesianVector expectedEccentricityVector{1,0,0};
 
     const auto eccVec = OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, specAngMomVector);
+    EXPECT_EQ(expectedEccentricityVector, eccVec);
   }
   {
     SCOPED_TRACE("nontrivial vector physical case");
@@ -205,10 +206,31 @@ TEST(EccentricityVectorTest, eccentricityVector){
     const StandardGravParam stdGravParam{10};
     // Vxh = - 100 Z -> Vxh/mu = -10 Z.
     // unit R is just unit X
-    const CartesianVector exxpectedEccVec{-1, 0, -10};
+    const CartesianVector expectedEccVec{-1, 0, -10};
 
     const CartesianVector actualEccVec{OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, angMomVector)};
-    EXPECT_EQ(actualEccVec, exxpectedEccVec);
+    EXPECT_EQ(actualEccVec, expectedEccVec);
+  }
+  {
+    SCOPED_TRACE("radial case");
+    // considering physically correct scenario: R some vector, V is 0 or collinear with R,
+    // R x V = 0
+    // V x h = 0
+    // Vxh/mu - unit R = - unit R
+    // in general, for any radial vector, the ecc vec will be - unit R
+    // so to do a nontrivial case, choose a nontrivial R vector, and a V vector
+    // that is a simple scale of that R vector.
+    // using scale = -2.12
+    const StandardGravParam stdGravParam{0.5};
+    const StateVector stateVector{
+        PositionVector{{2},{10},{11}},
+        VelocityVector{{-4.24},{-21.2},{23.32}}
+    };
+    const SpecAngMomVector specAngMomVector{{0}, {0}, {0}};
+    const CartesianVector expectedEccentricityVector{-2.0/15, -10.0/15, -11.0/15};
+
+    const auto eccVec = OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, specAngMomVector);
+    EXPECT_EQ(expectedEccentricityVector, eccVec);
   }
 }
 

@@ -64,6 +64,12 @@ public:
   [[nodiscard]] Meters semiMajorAxis() const{ return cache_.semiMajorAxis; }
 
   /**
+   *
+   * @return
+   */
+  [[nodiscard]] double eccentricity() const{return cache_.eccentricity;}
+
+  /**
    * Period - the time, in seconds, that it takes to complete one orbit.
    *
    * Only can be defined for elliptical orbits, T=2*pi*sqrt((a^3)/mu)
@@ -100,6 +106,9 @@ public:
    * @note for radial orbits, those with no angular momentum, this value cannot be calculated
    * At least one of the angles won't be necessary since there's not a plane of the orbit, it might be
    * this one. For now, it will return NaN, but it may be safe to arbitrarily set it to zero
+   * -- on second thought, I think it makes the most sense to define radial orbits by inclination and
+   * longitude of ascending node. Arg. of periapsis is an angle in the plane of the orbit, and thus
+   * the least sensible angle. Inclination and longAscNode give enough information to orient the orbit.
    *
    * @return angle between 0 and 180° (or pi radians)
    */
@@ -113,9 +122,18 @@ public:
    */
   [[nodiscard]] Angle longitudeOfAscendingNode() const{return cache_.longitudeOfAscendingNode;}
 
+  /**
+   * Angle from the ascending node to the periapsis of the orbit, in the plane of the orbit.
+   *
+   * There are two perfectly symmetrical orbits:
+   * - Circular orbit - arbitrarily set this to zero
+   * - Radial orbit - since the "orbit" is symmetrical either direction, the solution is degenerate,
+   * a vector radially inward or outward both "point" to the "periapsis" if there was one.
+   *   - Given the physical case an object will likely collide with the body, selecting the radially
+   *   inward vector (when the orbit is first constructed) points toward the
+   *   "closest approach" the object will make, so select that as the argument of periapsis.
+   */
   [[nodiscard]] Angle argumentOfPeriapsis() const{return cache_.argumentOfPeriapsis;}
-
-  [[nodiscard]] double eccentricity() const{return cache_.eccentricity;}
 
   // Physics update stuff: I think the program should be event-driven with a tick cycle
   // do we need to maybe have a system of registering callbacks on physics updates?
@@ -131,13 +149,13 @@ private:
     explicit Cache(const OrbitalPhysicsParameters& physicsParameters);
     Shape shape;
     Meters semiMajorAxis;
+    double eccentricity;
     Seconds period;
     RadiansPerSecond sweep;
     Angle inclination;
     CartesianVector vectorOfAscendingNode;
     Angle longitudeOfAscendingNode;
-    Angle argumentOfPeriapsis{Angle::Zero()};
-    double eccentricity{0};
+    Angle argumentOfPeriapsis;
   } cache_;
 };
 

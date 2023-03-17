@@ -53,6 +53,18 @@ Angle f_longitudeAscNode(const CartesianVector& ascNodeVec){
   return Angle::radians(std::atan2(ascNodeVec.y(), ascNodeVec.x()));
 }
 
+Angle f_argumentOfPeriapsis(const CartesianVector& ascNodeVec, const CartesianVector& eccVec){
+  return Angle::Zero();
+}
+
+double f_eccentricity(OrbitalPhysics::Shape shape, const CartesianVector& eccVec){
+  // Just to avoid rounding errors: if parabolic, return 1.0
+  if(OrbitalPhysics::Shape::parabolic == shape){
+    return 1.0;
+  }
+  return eccVec.norm();
+}
+
 } // namespace
 
 OrbitalPhysics::OrbitalPhysics(OrbitalPhysicsParameters physicsParameters)
@@ -63,11 +75,13 @@ OrbitalPhysics::OrbitalPhysics(OrbitalPhysicsParameters physicsParameters)
 OrbitalPhysics::Cache::Cache(const OrbitalPhysicsParameters& physParam)
   : shape{f_shape(physParam.specificEnergy())}
   , semiMajorAxis{f_semiMajorAxis(physParam, shape)}
+  , eccentricity{f_eccentricity(shape, physParam.eccentricityVector())}
   , period{f_period(physParam.stdGravParam(), semiMajorAxis, shape)}
   , sweep{f_sweep(shape, physParam.stdGravParam(), semiMajorAxis, physParam.specificAngularMomentum())}
   , inclination{f_inclination(physParam.specificAngularMomentum())}
   , vectorOfAscendingNode{f_ascNodeVec(physParam.specificAngularMomentum())}
   , longitudeOfAscendingNode{f_longitudeAscNode(vectorOfAscendingNode)}
+  , argumentOfPeriapsis{f_argumentOfPeriapsis(vectorOfAscendingNode, physParam.eccentricityVector())}
 {}
 
 } // namespace orb_mech

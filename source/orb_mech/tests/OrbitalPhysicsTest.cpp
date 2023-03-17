@@ -67,6 +67,7 @@ public:
   // ang mom = {-23, 26, 258} = 13*sqrt(401); norm = (-23/13sqrt(401), 2/sqrt(401), 258/13sqrt(401))
   // incl = acos(258/13sqrt(401)) = 7.6629523069 degrees
   // longAscNode = atan2(-23, -26) = -2.417342652841646 rad
+  const double hyperbolicEcc = hyperbolicOrbitParams.eccentricityVector().norm();
 
   // choosing something roughly physical/coplanar with left hand orbit
   const OrbitalPhysicsParameters ellipticalOrbitParams{
@@ -80,6 +81,15 @@ public:
   // ang mom = {58, 6, -240} = 10*sqrt(610); norm = (29/5sqrt(610), 3/5sqrt(610), -12*sqrt(2/305))
   // incl = acos(-12*sqrt(2/305))=166.3442145528 degrees - corresponds to left hand orbit choice
   // longAscNode = atan2(58, -6) = 1.6738779353175968
+  const double ellipticalEcc = ellipticalOrbitParams.eccentricityVector().norm();
+
+  const std::map<std::string, const OrbitalPhysicsParameters&> paramsMap{
+      {"unitCircle", unitCircleParams},
+      {"freeFall", unitFreeFallParams},
+      {"parabolic", parabolicOrbitParams},
+      {"hyperbolic", hyperbolicOrbitParams},
+      {"elliptical", ellipticalOrbitParams}
+  };
 
   const std::map<std::string, const OrbitalPhysics&> testCaseMap{
       {"unitCircle", unitCircleOrbit},
@@ -92,54 +102,64 @@ public:
   struct TestExpectations{
     OrbitalPhysics::Shape shape;
     Meters semiMajorAxis;
+    double eccentricity;
     Seconds period;
     RadiansPerSecond sweep;
     Angle inclination;
     Angle longitudeOfAscendingNode;
-//    Angle argumentOfPeriapsis;
-//    double eccentricity;
+    Angle argumentOfPeriapsis;
   };
 
   const std::map<std::string, TestExpectations> testExpectationsMap{
       {"unitCircle",
        {OrbitalPhysics::Shape::elliptical,
         {1},
+        0.0, // circular orbits are ecc = 0
         {2*kPi},
         {1},
         {Angle::Zero()},
-        {Angle::Zero()}
+        {Angle::Zero()}, // arbitrary for planar circle, selected to be zero
+        {Angle::Zero()} // arbitrary for planar circle, selected to be zero
        }},
       {"freeFall",
-       {OrbitalPhysics::Shape::elliptical,
+       {OrbitalPhysics::Shape::elliptical, // technically elliptical because negative energy
         {0.5},
+        1.0, // all radial orbits are ecc = 1
         {kPi/sqrt(2)},
         {2*sqrt(2)},
-        {Angle::radians(std::nan("radial orbit - no inclination"))},
-        {Angle::Zero()}
+        {Angle::Zero()}, // known wrong, return to this.
+        {Angle::Zero()}, // in this case, no inclination, so zero
+        {Angle::Zero()} // radial orbits are weird case here - will write a few extra tests
        }},
       {"parabolic",
        {OrbitalPhysics::Shape::parabolic,
         {std::nan("parabolic orbit - no semiMajor Axis")},
+        1.0, // parabolic orbits are ecc = 1
         {std::numeric_limits<double>::infinity()},
         {0.4313007372},// subtly different meaning of "sweep" for parabolic orbits
         {Angle::degrees(3.1798301199)},
-        {Angle::radians(kPi)}
+        {Angle::radians(kPi)},
+        {Angle::Zero()}
        }},
       {"hyperbolic",
         {OrbitalPhysics::Shape::hyperbolic,
          {-64.2068965517},
+         hyperbolicEcc,
          {std::numeric_limits<double>::infinity()},
          {0.083872062},
         {Angle::degrees(7.6629523069)},
-        {Angle::radians(-2.417342652841646)}
+        {Angle::radians(-2.417342652841646)},
+        {Angle::Zero()}
        }},
       {"elliptical",
        {OrbitalPhysics::Shape::elliptical,
         {68.962962963},
+        ellipticalEcc,
         {83.3899855854},
         {0.0753470008},
         {Angle::degrees(166.3442145528)},
-        {Angle::radians(1.6738779353175968)}
+        {Angle::radians(1.6738779353175968)},
+        {Angle::Zero()}
        }}
   };
 };
@@ -166,8 +186,44 @@ TEST_P(OrbitalPhysicsTest, semiMajorAxis){
   // is that this number should be "1", not "0". imagine dropping an object from height 1,
   // it should fall "through" the body, continue on to height -1, then fall back "up" to
   // 1 once more, making the total "orbit" 2 long, and the semimajor of it 1. Need to think more
+  // -- think about it asymptotically. start with a circular orbit and burn retrograde to kill
+  // orbital velocity. The periapsis of the orbit reduces down to zero. For some tiny amount of
+  // angular momentum, the orbit starts at height 1, falls down, whips around the center and returns
+  // going from 1->0->1, so a = 0.5. The conventional "drop straight down" approach simply avoids a
+  // singularity as it passes through the center, and so the fall straight through solution
 
   EXPECT_NEAR(expectedSemiMajorAxis.m, actualSemiMajorAxis.m, 1e-10);
+}
+
+TEST_P(OrbitalPhysicsTest, eccentricity){
+  const auto caseName = GetParam();
+  const OrbitalPhysics& orbit = testCaseMap.at(caseName);
+  const double expectedEccentricity = testExpectationsMap.at(caseName).eccentricity;
+
+  // Since we're indirectly calculating eccentricity above, make sure they align
+  // with our physical intuition:
+  // elliptical orbits between 0 & 1, hyperbolic > 1
+  // (parabolic expectation = 1 set explicitly above)
+  if("hyperbolic" == caseName){
+    EXPECT_GT(expectedEccentricity, 1.0);
+  }
+  else if("elliptical" == caseName){
+    EXPECT_GT(expectedEccentricity, 0.0);
+    EXPECT_LT(expectedEccentricity, 1.0);
+  }
+
+  EXPECT_EQ(expectedEccentricity, orbit.eccentricity());
+
+  // the above calcs use the ecc vector to calculate eccentricity, but
+  // we can calculate eccentricity a priori from the physical parameters
+  const auto& params = paramsMap.at(GetParam());
+  const auto& h = params.specificAngularMomentum().rawVector();
+  const double hSquared = h.dot(h);
+  const double num = 2 * params.specificEnergy().e * hSquared;
+  const double muSquared = params.stdGravParam().mu * params.stdGravParam().mu;
+  const double alternateEcc = sqrt(1 + num/(muSquared));
+
+  EXPECT_EQ(alternateEcc, orbit.eccentricity());
 }
 
 TEST_P(OrbitalPhysicsTest, period){
@@ -217,6 +273,10 @@ TEST_P(OrbitalPhysicsTest, longitudeOfAscendingNode){
   Angle angularDifference= expectedLongAscNode - actualLongAscNode;
 
   EXPECT_LT(std::fabs(angularDifference.getDegrees()), 0.1);
+}
+
+TEST_P(OrbitalPhysicsTest, argumentOfPeriapsis){
+
 }
 
 INSTANTIATE_TEST_SUITE_P(OrbitalPhysicsTest, OrbitalPhysicsTest,
