@@ -54,7 +54,10 @@ Angle f_longitudeAscNode(const CartesianVector& ascNodeVec){
 }
 
 Angle f_argumentOfPeriapsis(const CartesianVector& ascNodeVec, const CartesianVector& eccVec){
-  return Angle::Zero();
+  if(ascNodeVec.x() == 0 && ascNodeVec.y() == 0){
+    return Angle::radians(std::atan2(eccVec.y(), eccVec.x()));
+  }
+  return Angle::radians(std::acos(ascNodeVec.normalizedVector().dot(eccVec.normalizedVector())));
 }
 
 double f_eccentricity(OrbitalPhysics::Shape shape, const CartesianVector& eccVec){

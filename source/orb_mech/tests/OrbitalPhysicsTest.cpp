@@ -52,7 +52,13 @@ public:
   // ang mom = (0, 14, -252) = 70*sqrt(13); h^2 = 63700; norm = (0, 1/(5sqrt(13), 18/(5sqrt(13))
   // rp = h^2 / 2*mu = 17.1052631579; M=sqrt(mu/(2*rp^3))=0.4313007372
   // incl = acos(18/5sqrt(13)) = 3.1798301199 degrees
+  // ascNodeVec = {-14, 0, 0} -> Norm = {-1, 0, 0}
   // longAscNode = atan2(hx, -hy) = atan2(0, 14) = pi
+  // Vxh = {0, -14*-252, 14*14} = {0, -3528, 196} ; Vxh/mu = {0, -36/19, 2/19}
+  // r_hat = {6/19, -18/19, 1/19}
+  // eccVec = {-6/19, (-36+18)/19, (2-1)/19} = {-6/19, -18/19, 1/19}
+  // eccVecNorm -> same as {-6, -18, 1}, which has norm 19, therefore is already normalized (should be, parabolic case ecc=1)
+  // argPeri -> acos(6/19) = 71.5915198294°
   const OrbitalPhysics parabolicOrbit{parabolicOrbitParams};
 
   // choosing something roughly physical/coplanar with normal right hand orbit
@@ -64,9 +70,15 @@ public:
       }
   };
   const OrbitalPhysics hyperbolicOrbit{hyperbolicOrbitParams};
-  // ang mom = {-23, 26, 258} = 13*sqrt(401); norm = (-23/13sqrt(401), 2/sqrt(401), 258/13sqrt(401))
+  // ang mom = {-23, 26, 258} = 13*sqrt(401); norm = (-23/13sqrt(401), 26/13sqrt(401), 258/13sqrt(401))
   // incl = acos(258/13sqrt(401)) = 7.6629523069 degrees
+  // ascNodeVec = {-26, -23, 0} -> Norm = {-26/sqrt(1205), -23/sqrt(1205), 0}
   // longAscNode = atan2(-23, -26) = -2.417342652841646 rad
+  // Vxh = {(11*258)-(-2*26), (-2*-23)-(-10*258), (-10*26)-(11*-23)} = {2890, 2626, -7}
+  // r_hat = {18/19, 6/19, 1/19} = {1764/1862, 588/1862, 98/1862}
+  // eccVec = {(2890-1764)/1862, (2626-588)/1862, (-7-98)/1862} = {1126/1862, 2038/1862, -105/1862} (norm = sqrt(5432345)/1862 = 1.25054... (ecc)
+  // eccVecNorm same as {1126, 2038, -105} -> (1/sqrt(5432345))*{2548, 2518, -105}
+  // argPeri = acos((-26*1126 + -23*2038 )/(sqrt(1205)*sqrt(5432345)) = acos(-76150/(sqrt(1205*5432345)) = 160.2543589611°
   const double hyperbolicEcc = hyperbolicOrbitParams.eccentricityVector().norm();
 
   // choosing something roughly physical/coplanar with left hand orbit
@@ -78,9 +90,15 @@ public:
       }
   };
   const OrbitalPhysics ellipticalOrbit{ellipticalOrbitParams};
-  // ang mom = {58, 6, -240} = 10*sqrt(610); norm = (29/5sqrt(610), 3/5sqrt(610), -12*sqrt(2/305))
+  // ang mom = {58, 6, -240} = 10*sqrt(610); norm = (29/5sqrt(610), 3/5sqrt(610), -120/5sqrt(610)))
   // incl = acos(-12*sqrt(2/305))=166.3442145528 degrees - corresponds to left hand orbit choice
+  // ascNodeVec = {-6, 58, 0} -> Norm = {-6/(10*sqrt(34)), 58/(10*sqrt(34)), 0} = {-3/5sqrt(34), 29/5sqrt(34, 0}
   // longAscNode = atan2(58, -6) = 1.6738779353175968
+  // Vxh = {(4*-240)-(3*6), (3*58)-(12*-240), (12*6)-(4*58)} = {-978, 3054, -160}
+  // r_hat = {-6/19, 18/19, -1/19} = {-588/1862, 1764/1862, -98/1862}
+  // eccVec = {(-978+588)/1862, (3054-1764)/1862, (-160+98)/1862} = (1/1862)*{-390, 1290, -62} = (1/931){-195, 645, -31} - ecc = 0.7245381653
+  // eccVecNorm same as {-195, 645, -31} -> (1/sqrt(455011))*{-195, 645, -31}
+  // argPeri = acos((-195*-3+645*29)/(5*sqrt(34)*sqrt(455011)) = acos(19290/(5*sqrt(34*455011)) = acos(3858/sqrt(15470374)) = 11.2248489655°
   const double ellipticalEcc = ellipticalOrbitParams.eccentricityVector().norm();
 
   const std::map<std::string, const OrbitalPhysicsParameters&> paramsMap{
@@ -129,7 +147,7 @@ public:
         {2*sqrt(2)},
         {Angle::Zero()}, // known wrong, return to this.
         {Angle::Zero()}, // in this case, no inclination, so zero
-        {Angle::Zero()} // radial orbits are weird case here - will write a few extra tests
+        {Angle::radians(kPi)} // radial orbits are weird case here - will need a few extra tests
        }},
       {"parabolic",
        {OrbitalPhysics::Shape::parabolic,
@@ -139,7 +157,7 @@ public:
         {0.4313007372},// subtly different meaning of "sweep" for parabolic orbits
         {Angle::degrees(3.1798301199)},
         {Angle::radians(kPi)},
-        {Angle::Zero()}
+        {Angle::degrees(71.5915198294)}
        }},
       {"hyperbolic",
         {OrbitalPhysics::Shape::hyperbolic,
@@ -149,7 +167,7 @@ public:
          {0.083872062},
         {Angle::degrees(7.6629523069)},
         {Angle::radians(-2.417342652841646)},
-        {Angle::Zero()}
+        {Angle::degrees(160.2543589611)}
        }},
       {"elliptical",
        {OrbitalPhysics::Shape::elliptical,
@@ -159,7 +177,7 @@ public:
         {0.0753470008},
         {Angle::degrees(166.3442145528)},
         {Angle::radians(1.6738779353175968)},
-        {Angle::Zero()}
+        {Angle::degrees(11.2248489655)}
        }}
   };
 };
@@ -181,16 +199,6 @@ TEST_P(OrbitalPhysicsTest, semiMajorAxis){
     EXPECT_THAT(actualSemiMajorAxis.m, IsNan());
     return;
   }
-
-  // sidenote: I'm still hung up on the freeFall semimajor axis point. My intuition
-  // is that this number should be "1", not "0". imagine dropping an object from height 1,
-  // it should fall "through" the body, continue on to height -1, then fall back "up" to
-  // 1 once more, making the total "orbit" 2 long, and the semimajor of it 1. Need to think more
-  // -- think about it asymptotically. start with a circular orbit and burn retrograde to kill
-  // orbital velocity. The periapsis of the orbit reduces down to zero. For some tiny amount of
-  // angular momentum, the orbit starts at height 1, falls down, whips around the center and returns
-  // going from 1->0->1, so a = 0.5. The conventional "drop straight down" approach simply avoids a
-  // singularity as it passes through the center, and so the fall straight through solution
 
   EXPECT_NEAR(expectedSemiMajorAxis.m, actualSemiMajorAxis.m, 1e-10);
 }
@@ -276,6 +284,16 @@ TEST_P(OrbitalPhysicsTest, longitudeOfAscendingNode){
 }
 
 TEST_P(OrbitalPhysicsTest, argumentOfPeriapsis){
+  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+  const Angle expectedArgPeriapsis = testExpectationsMap.at(GetParam()).argumentOfPeriapsis;
+
+  const auto actualArgPeriapsis = orbit.argumentOfPeriapsis();
+
+  Angle angularDifference= expectedArgPeriapsis - actualArgPeriapsis;
+
+  EXPECT_LT(std::fabs(angularDifference.getDegrees()), 0.1)
+      << "expected " << expectedArgPeriapsis.getDegrees() << "° actual "
+      << actualArgPeriapsis.getDegrees() << "°";
 
 }
 

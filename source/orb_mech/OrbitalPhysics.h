@@ -132,6 +132,8 @@ public:
    *   - Given the physical case an object will likely collide with the body, selecting the radially
    *   inward vector (when the orbit is first constructed) points toward the
    *   "closest approach" the object will make, so select that as the argument of periapsis.
+   *
+   * @warning the radial case is not properly implemented yet, the test case is too trivial to be useful.
    */
   [[nodiscard]] Angle argumentOfPeriapsis() const{return cache_.argumentOfPeriapsis;}
 
