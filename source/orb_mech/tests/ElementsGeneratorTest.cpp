@@ -1,4 +1,4 @@
-#include "../OrbitalPhysics.h"
+#include "../ElementsGenerator.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock-matchers.h"
@@ -13,7 +13,7 @@ using namespace ::testing;
 
 const auto kPi = std::numbers::pi;
 
-class OrbitalPhysicsTest : public TestWithParam<std::string>{
+class ElementsGeneratorTest : public TestWithParam<std::string>{
 public:
   // should produce a trivial circular orbit
   const OrbitalPhysicsParameters unitCircleParams{
@@ -22,7 +22,7 @@ public:
       PositionVector {{1},{},{}},
         VelocityVector {{}, {1}, {}}
     }};
-  const OrbitalPhysics unitCircleOrbit{unitCircleParams};
+  const ElementsGenerator unitCircleOrbit{unitCircleParams};
 
   // should produce a trivial "orbit" which falls straight toward center
   // this actually forms an edge case to test a lot of orbital extrema
@@ -33,7 +33,7 @@ public:
           VelocityVector {{},{},{}}
       }
   };
-  const OrbitalPhysics unitFreeFallOrbit{unitFreeFallParams};
+  const ElementsGenerator unitFreeFallOrbit{unitFreeFallParams};
 
   // for nontrivial orbits, reusing similar maths to phys params test:
   // parabolic orbit with speed = 14, elliptical with speed = 13, hyperbolic 15
@@ -59,7 +59,7 @@ public:
   // eccVec = {-6/19, (-36+18)/19, (2-1)/19} = {-6/19, -18/19, 1/19}
   // eccVecNorm -> same as {-6, -18, 1}, which has norm 19, therefore is already normalized (should be, parabolic case ecc=1)
   // argPeri -> acos(6/19) = 71.5915198294°
-  const OrbitalPhysics parabolicOrbit{parabolicOrbitParams};
+  const ElementsGenerator parabolicOrbit{parabolicOrbitParams};
 
   // choosing something roughly physical/coplanar with normal right hand orbit
   const OrbitalPhysicsParameters hyperbolicOrbitParams{
@@ -69,7 +69,7 @@ public:
           VelocityVector {{-10}, {11}, {-2}}
       }
   };
-  const OrbitalPhysics hyperbolicOrbit{hyperbolicOrbitParams};
+  const ElementsGenerator hyperbolicOrbit{hyperbolicOrbitParams};
   // ang mom = {-23, 26, 258} = 13*sqrt(401); norm = (-23/13sqrt(401), 26/13sqrt(401), 258/13sqrt(401))
   // incl = acos(258/13sqrt(401)) = 7.6629523069 degrees
   // ascNodeVec = {-26, -23, 0} -> Norm = {-26/sqrt(1205), -23/sqrt(1205), 0}
@@ -89,7 +89,7 @@ public:
           VelocityVector {{12}, {4}, {3}}
       }
   };
-  const OrbitalPhysics ellipticalOrbit{ellipticalOrbitParams};
+  const ElementsGenerator ellipticalOrbit{ellipticalOrbitParams};
   // ang mom = {58, 6, -240} = 10*sqrt(610); norm = (29/5sqrt(610), 3/5sqrt(610), -120/5sqrt(610)))
   // incl = acos(-12*sqrt(2/305))=166.3442145528 degrees - corresponds to left hand orbit choice
   // ascNodeVec = {-6, 58, 0} -> Norm = {-6/(10*sqrt(34)), 58/(10*sqrt(34)), 0} = {-3/5sqrt(34), 29/5sqrt(34, 0}
@@ -109,7 +109,7 @@ public:
       {"elliptical", ellipticalOrbitParams}
   };
 
-  const std::map<std::string, const OrbitalPhysics&> testCaseMap{
+  const std::map<std::string, const ElementsGenerator&> testCaseMap{
       {"unitCircle", unitCircleOrbit},
       {"freeFall", unitFreeFallOrbit},
       {"parabolic", parabolicOrbit},
@@ -118,7 +118,7 @@ public:
   };
 
   struct TestExpectations{
-    OrbitalPhysics::Shape shape;
+    ElementsGenerator::Shape shape;
     Meters semiMajorAxis;
     double eccentricity;
     Seconds period;
@@ -130,7 +130,7 @@ public:
 
   const std::map<std::string, TestExpectations> testExpectationsMap{
       {"unitCircle",
-       {OrbitalPhysics::Shape::elliptical,
+       {ElementsGenerator::Shape::elliptical,
         {1},
         0.0, // circular orbits are ecc = 0
         {2*kPi},
@@ -140,7 +140,7 @@ public:
         {Angle::Zero()} // arbitrary for planar circle, selected to be zero
        }},
       {"freeFall",
-       {OrbitalPhysics::Shape::elliptical, // technically elliptical because negative energy
+       {ElementsGenerator::Shape::elliptical, // technically elliptical because negative energy
         {0.5},
         1.0, // all radial orbits are ecc = 1
         {kPi/sqrt(2)},
@@ -150,7 +150,7 @@ public:
         {Angle::radians(kPi)} // radial orbits are weird case here - will need a few extra tests
        }},
       {"parabolic",
-       {OrbitalPhysics::Shape::parabolic,
+       {ElementsGenerator::Shape::parabolic,
         {std::nan("parabolic orbit - no semiMajor Axis")},
         1.0, // parabolic orbits are ecc = 1
         {std::numeric_limits<double>::infinity()},
@@ -160,7 +160,7 @@ public:
         {Angle::degrees(71.5915198294)}
        }},
       {"hyperbolic",
-        {OrbitalPhysics::Shape::hyperbolic,
+        {ElementsGenerator::Shape::hyperbolic,
          {-64.2068965517},
          hyperbolicEcc,
          {std::numeric_limits<double>::infinity()},
@@ -170,7 +170,7 @@ public:
         {Angle::degrees(160.2543589611)}
        }},
       {"elliptical",
-       {OrbitalPhysics::Shape::elliptical,
+       {ElementsGenerator::Shape::elliptical,
         {68.962962963},
         ellipticalEcc,
         {83.3899855854},
@@ -182,15 +182,15 @@ public:
   };
 };
 
-TEST_P(OrbitalPhysicsTest, shape){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
-  const OrbitalPhysics::Shape shape = testExpectationsMap.at(GetParam()).shape;
+TEST_P(ElementsGeneratorTest, shape){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
+  const ElementsGenerator::Shape shape = testExpectationsMap.at(GetParam()).shape;
 
   EXPECT_EQ(shape, orbit.shape());
 }
 
-TEST_P(OrbitalPhysicsTest, semiMajorAxis){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+TEST_P(ElementsGeneratorTest, semiMajorAxis){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
   const Meters& expectedSemiMajorAxis = testExpectationsMap.at(GetParam()).semiMajorAxis;
 
   const auto actualSemiMajorAxis = orbit.semiMajorAxis();
@@ -203,9 +203,9 @@ TEST_P(OrbitalPhysicsTest, semiMajorAxis){
   EXPECT_NEAR(expectedSemiMajorAxis.m, actualSemiMajorAxis.m, 1e-10);
 }
 
-TEST_P(OrbitalPhysicsTest, eccentricity){
+TEST_P(ElementsGeneratorTest, eccentricity){
   const auto caseName = GetParam();
-  const OrbitalPhysics& orbit = testCaseMap.at(caseName);
+  const ElementsGenerator & orbit = testCaseMap.at(caseName);
   const double expectedEccentricity = testExpectationsMap.at(caseName).eccentricity;
 
   // Since we're indirectly calculating eccentricity above, make sure they align
@@ -234,8 +234,8 @@ TEST_P(OrbitalPhysicsTest, eccentricity){
   EXPECT_EQ(alternateEcc, orbit.eccentricity());
 }
 
-TEST_P(OrbitalPhysicsTest, period){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+TEST_P(ElementsGeneratorTest, period){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
   const Seconds expectedPeriod = testExpectationsMap.at(GetParam()).period;
 
   const auto actualPeriod = orbit.period();
@@ -248,8 +248,8 @@ TEST_P(OrbitalPhysicsTest, period){
   EXPECT_NEAR(expectedPeriod.s, actualPeriod.s, 1e-9);
 }
 
-TEST_P(OrbitalPhysicsTest, sweep){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+TEST_P(ElementsGeneratorTest, sweep){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
   const RadiansPerSecond expectedSweep = testExpectationsMap.at(GetParam()).sweep;
 
   const auto actualSweep = orbit.sweep();
@@ -257,8 +257,8 @@ TEST_P(OrbitalPhysicsTest, sweep){
   EXPECT_NEAR(expectedSweep.w, actualSweep.w, 1e-9);
 }
 
-TEST_P(OrbitalPhysicsTest, inclination){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+TEST_P(ElementsGeneratorTest, inclination){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
   const Angle expectedInclination = testExpectationsMap.at(GetParam()).inclination;
 
   const auto actualInclination = orbit.inclination();
@@ -272,8 +272,8 @@ TEST_P(OrbitalPhysicsTest, inclination){
   EXPECT_NEAR(expectedInclination.getDegrees(), actualInclination.getDegrees(), 1e-9);
 }
 
-TEST_P(OrbitalPhysicsTest, longitudeOfAscendingNode){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+TEST_P(ElementsGeneratorTest, longitudeOfAscendingNode){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
   const Angle expectedLongAscNode = testExpectationsMap.at(GetParam()).longitudeOfAscendingNode;
 
   const auto actualLongAscNode = orbit.longitudeOfAscendingNode();
@@ -283,8 +283,8 @@ TEST_P(OrbitalPhysicsTest, longitudeOfAscendingNode){
   EXPECT_LT(std::fabs(angularDifference.getDegrees()), 0.1);
 }
 
-TEST_P(OrbitalPhysicsTest, argumentOfPeriapsis){
-  const OrbitalPhysics& orbit = testCaseMap.at(GetParam());
+TEST_P(ElementsGeneratorTest, argumentOfPeriapsis){
+  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
   const Angle expectedArgPeriapsis = testExpectationsMap.at(GetParam()).argumentOfPeriapsis;
 
   const auto actualArgPeriapsis = orbit.argumentOfPeriapsis();
@@ -297,7 +297,7 @@ TEST_P(OrbitalPhysicsTest, argumentOfPeriapsis){
 
 }
 
-INSTANTIATE_TEST_SUITE_P(OrbitalPhysicsTest, OrbitalPhysicsTest,
+INSTANTIATE_TEST_SUITE_P(ElementsGeneratorTest, ElementsGeneratorTest,
                          Values("unitCircle", "freeFall", "parabolic", "hyperbolic", "elliptical"));
 
 } // namespace

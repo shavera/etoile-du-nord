@@ -1,4 +1,4 @@
-#include "OrbitalPhysics.h"
+#include "ElementsGenerator.h"
 
 #include <cmath>
 #include <numbers>
@@ -7,29 +7,31 @@ namespace orb_mech{
 namespace{
 constexpr double kPi = std::numbers::pi;
 
-OrbitalPhysics::Shape f_shape(const SpecificEnergy& energy){
-  if(energy.e < 0) { return OrbitalPhysics::Shape::elliptical; }
-  if(energy.e > 0) { return OrbitalPhysics::Shape::hyperbolic; }
-  return OrbitalPhysics::Shape::parabolic;
+ElementsGenerator::Shape f_shape(const SpecificEnergy& energy){
+  if(energy.e < 0) { return ElementsGenerator::Shape::elliptical; }
+  if(energy.e > 0) { return ElementsGenerator::Shape::hyperbolic; }
+  return ElementsGenerator::Shape::parabolic;
 }
 
-Meters f_semiMajorAxis(const OrbitalPhysicsParameters& physParam, OrbitalPhysics::Shape shape){
-  if(OrbitalPhysics::Shape::parabolic == shape){
+Meters f_semiMajorAxis(const OrbitalPhysicsParameters& physParam,
+                       ElementsGenerator::Shape shape){
+  if(ElementsGenerator::Shape::parabolic == shape){
     return Meters{std::nan("parabolic orbit - no semimajoraxis")};
   }
   return {-physParam.stdGravParam().mu/(2.0*physParam.specificEnergy().e)};
 }
 
-Seconds f_period(StandardGravParam stdGravParam, const Meters& semiMajorAxis, OrbitalPhysics::Shape shape){
-  if(OrbitalPhysics::Shape::elliptical == shape){
+Seconds f_period(StandardGravParam stdGravParam, const Meters& semiMajorAxis,
+                 ElementsGenerator::Shape shape){
+  if(ElementsGenerator::Shape::elliptical == shape){
     const auto aCubed = std::pow(semiMajorAxis.m, 3);
     return {2*kPi*sqrt(aCubed/stdGravParam.mu)};
   }
   return {std::numeric_limits<double>::infinity()};
 }
 
-RadiansPerSecond f_sweep(OrbitalPhysics::Shape shape, StandardGravParam stdGravParam, Meters semiMajorAxis, const SpecAngMomVector& angularMomentum){
-  if(OrbitalPhysics::Shape::parabolic == shape){
+RadiansPerSecond f_sweep(ElementsGenerator::Shape shape, StandardGravParam stdGravParam, Meters semiMajorAxis, const SpecAngMomVector& angularMomentum){
+  if(ElementsGenerator::Shape::parabolic == shape){
     const double hSquared = angularMomentum.rawVector().dot(angularMomentum.rawVector());
     const double r_p = hSquared/(2*stdGravParam.mu);
     return {sqrt(stdGravParam.mu/(2*pow(r_p, 3)))};
@@ -60,9 +62,9 @@ Angle f_argumentOfPeriapsis(const CartesianVector& ascNodeVec, const CartesianVe
   return Angle::radians(std::acos(ascNodeVec.normalizedVector().dot(eccVec.normalizedVector())));
 }
 
-double f_eccentricity(OrbitalPhysics::Shape shape, const CartesianVector& eccVec){
+double f_eccentricity(ElementsGenerator::Shape shape, const CartesianVector& eccVec){
   // Just to avoid rounding errors: if parabolic, return 1.0
-  if(OrbitalPhysics::Shape::parabolic == shape){
+  if(ElementsGenerator::Shape::parabolic == shape){
     return 1.0;
   }
   return eccVec.norm();
@@ -70,12 +72,12 @@ double f_eccentricity(OrbitalPhysics::Shape shape, const CartesianVector& eccVec
 
 } // namespace
 
-OrbitalPhysics::OrbitalPhysics(OrbitalPhysicsParameters physicsParameters)
+ElementsGenerator::ElementsGenerator(OrbitalPhysicsParameters physicsParameters)
   : physicsParameters_{std::move(physicsParameters)}
   , cache_{physicsParameters_}
 {}
 
-OrbitalPhysics::Cache::Cache(const OrbitalPhysicsParameters& physParam)
+ElementsGenerator::Cache::Cache(const OrbitalPhysicsParameters& physParam)
   : shape{f_shape(physParam.specificEnergy())}
   , semiMajorAxis{f_semiMajorAxis(physParam, shape)}
   , eccentricity{f_eccentricity(shape, physParam.eccentricityVector())}

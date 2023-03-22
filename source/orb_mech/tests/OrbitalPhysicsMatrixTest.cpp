@@ -1,4 +1,4 @@
-#include "../OrbitalPhysics.h"
+#include "../ElementsGenerator.h"
 
 #include "gtest/gtest.h"
 #include "gmock/gmock-matchers.h"
@@ -59,7 +59,7 @@ struct InputData{
 };
 
 struct ExpectedOutput{
-  OrbitalPhysics::Shape shape{OrbitalPhysics::Shape::elliptical};
+  ElementsGenerator::Shape shape{ElementsGenerator::Shape::elliptical};
   Meters semiMajorAxis{0};
   Seconds period{0};
   RadiansPerSecond sweep{0};

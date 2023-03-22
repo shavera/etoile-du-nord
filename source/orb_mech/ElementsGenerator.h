@@ -35,10 +35,19 @@ namespace orb_mech{
  * StandardGravParam absorbs a lot of the specific unit details by its choice of gravitational constant,
  * but that is determined elsewhere when it's handed to this class.
  */
-class OrbitalPhysics {
-public:
 
-  OrbitalPhysics(OrbitalPhysicsParameters physicsParameters);
+
+/**
+ * @brief generate _most_ orbital elements from the physics parameters.
+ *
+ * The overall orbit shape and orientation may be determined from these parameters
+ * but where to initialize the body in that orbit requires knowledge of the
+ * state vector when the body is "at" t=0. The parent physics class will use
+ * these values and additional solver tools to generate mean anomaly at epoch
+ */
+class ElementsGenerator {
+public:
+  ElementsGenerator(OrbitalPhysicsParameters physicsParameters);
 
   enum class Shape{elliptical, parabolic, hyperbolic};
 
@@ -135,7 +144,7 @@ public:
    *
    * @warning the radial case is not properly implemented yet, the test case is too trivial to be useful.
    */
-  [[nodiscard]] Angle argumentOfPeriapsis() const{return cache_.argumentOfPeriapsis;}
+  [[nodiscard]] Angle argumentOfPeriapsis() const{ return cache_.argumentOfPeriapsis; }
 
   // Physics update stuff: I think the program should be event-driven with a tick cycle
   // do we need to maybe have a system of registering callbacks on physics updates?
