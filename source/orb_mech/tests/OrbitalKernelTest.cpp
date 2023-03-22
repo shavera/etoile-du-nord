@@ -1,4 +1,4 @@
-#include "../OrbitalPhysicsParameters.h"
+#include "../OrbitalKernel.h"
 
 #include "gtest/gtest.h"
 
@@ -12,7 +12,7 @@ TEST(SpecificEnergyTest, specificOrbitalEnergy){
   };
 
   auto energyCalc = [](const InputDatum& input)->SpecificEnergy {
-    return OrbitalPhysicsParameters::specificOrbitalEnergy(input.stdGravParam, input.stateVector);
+    return OrbitalKernel::specificOrbitalEnergy(input.stdGravParam, input.stateVector);
   };
 
   {
@@ -88,7 +88,7 @@ TEST(SpecificAngularMomentumTest, specificAngularMomentum){
         PositionVector{{},{},{}},
         VelocityVector{{},{},{}}
     };
-    const auto angMomVec = OrbitalPhysicsParameters::specificAngularMomentum(stateVector);
+    const auto angMomVec = OrbitalKernel::specificAngularMomentum(stateVector);
     const SpecAngMomVector expected{{0}, {0}, {0}};
     EXPECT_EQ(expected, angMomVec);
   }
@@ -98,7 +98,7 @@ TEST(SpecificAngularMomentumTest, specificAngularMomentum){
         PositionVector{{1},{},{}},
         VelocityVector{{1},{},{}}
     };
-    const auto angMomVec = OrbitalPhysicsParameters::specificAngularMomentum(stateVector);
+    const auto angMomVec = OrbitalKernel::specificAngularMomentum(stateVector);
     const SpecAngMomVector expected{{0}, {0}, {0}};
     EXPECT_EQ(expected, angMomVec);
   }
@@ -109,7 +109,7 @@ TEST(SpecificAngularMomentumTest, specificAngularMomentum){
         VelocityVector{{},{1},{}}
     };
     // X x Y = Z
-    const auto angMomVec = OrbitalPhysicsParameters::specificAngularMomentum(stateVector);
+    const auto angMomVec = OrbitalKernel::specificAngularMomentum(stateVector);
     const SpecAngMomVector expected{{0}, {0}, {1}};
     EXPECT_EQ(expected, angMomVec);
   }
@@ -120,7 +120,7 @@ TEST(SpecificAngularMomentumTest, specificAngularMomentum){
         VelocityVector{{1},{},{}}
     };
     // Y x X = -Z
-    const auto angMomVec = OrbitalPhysicsParameters::specificAngularMomentum(stateVector);
+    const auto angMomVec = OrbitalKernel::specificAngularMomentum(stateVector);
     const SpecAngMomVector expected{{0}, {0}, {-1}};
     EXPECT_EQ(expected, angMomVec);
   }
@@ -130,7 +130,7 @@ TEST(SpecificAngularMomentumTest, specificAngularMomentum){
         PositionVector{{1.23},{-3.21},{7.12}},
         VelocityVector{{3.99},{7.85},{-1.22}}
     };
-    const auto angMomVec = OrbitalPhysicsParameters::specificAngularMomentum(stateVector);
+    const auto angMomVec = OrbitalKernel::specificAngularMomentum(stateVector);
     const SpecAngMomVector expected{{-51.9758}, {29.9094}, {22.4634}};
     EXPECT_NEAR(expected.x().h, angMomVec.x().h, 1e-4);
     EXPECT_NEAR(expected.y().h, angMomVec.y().h, 1e-4);
@@ -155,7 +155,7 @@ TEST(EccentricityVectorTest, eccentricityVector){
     const SpecAngMomVector specAngMomVector{{0}, {0}, {1}};
     const CartesianVector expectedEccentricityVector{1,0,0};
 
-    const auto eccVec = OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, specAngMomVector);
+    const auto eccVec = OrbitalKernel::eccentricityVector(stdGravParam, stateVector, specAngMomVector);
     EXPECT_EQ(expectedEccentricityVector, eccVec);
   }
   {
@@ -165,12 +165,13 @@ TEST(EccentricityVectorTest, eccentricityVector){
         VelocityVector {{2.34}, {4.56}, {-7.89}}
     };
     // assumes that angular momentum calculator is tested well above:
-    const SpecAngMomVector angMomVector{OrbitalPhysicsParameters::specificAngularMomentum(stateVector)};
+    const SpecAngMomVector angMomVector{
+        OrbitalKernel::specificAngularMomentum(stateVector)};
     const StandardGravParam stdGravParam{2.78};
     // the following was hand calculated (in python), so may need to be "close enough"
     const CartesianVector expectedEccentricityVector{94.85316256811534, -0.5780592474686674, 26.70603736002381};
 
-    const CartesianVector eccVector{OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, angMomVector)};
+    const CartesianVector eccVector{OrbitalKernel::eccentricityVector(stdGravParam, stateVector, angMomVector)};
 
     EXPECT_NEAR(expectedEccentricityVector.x(), eccVector.x(), 1e-6);
     EXPECT_NEAR(expectedEccentricityVector.y(), eccVector.y(), 1e-6);
@@ -208,7 +209,7 @@ TEST(EccentricityVectorTest, eccentricityVector){
     // unit R is just unit X
     const CartesianVector expectedEccVec{-1, 0, -10};
 
-    const CartesianVector actualEccVec{OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, angMomVector)};
+    const CartesianVector actualEccVec{OrbitalKernel::eccentricityVector(stdGravParam, stateVector, angMomVector)};
     EXPECT_EQ(actualEccVec, expectedEccVec);
   }
   {
@@ -229,7 +230,7 @@ TEST(EccentricityVectorTest, eccentricityVector){
     const SpecAngMomVector specAngMomVector{{0}, {0}, {0}};
     const CartesianVector expectedEccentricityVector{-2.0/15, -10.0/15, -11.0/15};
 
-    const auto eccVec = OrbitalPhysicsParameters::eccentricityVector(stdGravParam, stateVector, specAngMomVector);
+    const auto eccVec = OrbitalKernel::eccentricityVector(stdGravParam, stateVector, specAngMomVector);
     EXPECT_EQ(expectedEccentricityVector, eccVec);
   }
 }

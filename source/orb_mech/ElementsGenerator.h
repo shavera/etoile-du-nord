@@ -1,7 +1,7 @@
 #pragma once
 
+#include "OrbitalKernel.h"
 #include "orb_mech/units.h"
-#include "OrbitalPhysicsParameters.h"
 
 #include <memory>
 
@@ -47,7 +47,7 @@ namespace orb_mech{
  */
 class ElementsGenerator {
 public:
-  ElementsGenerator(OrbitalPhysicsParameters physicsParameters);
+  ElementsGenerator(OrbitalKernel physicsParameters);
 
   enum class Shape{elliptical, parabolic, hyperbolic};
 
@@ -151,13 +151,13 @@ public:
   // or is it possible to just make sure we do our physics in the right order and it's irrelevant?
 
 private:
-  OrbitalPhysicsParameters physicsParameters_;
+  OrbitalKernel physicsParameters_;
 
   // one way to preserve invariance is to calculate this cache on construction
   // then, when we introduce physics/time updates, we add a mechanism to lock
   // the cache to external access, do our updates, then unlock the cache.
   struct Cache{
-    explicit Cache(const OrbitalPhysicsParameters& physicsParameters);
+    explicit Cache(const OrbitalKernel & physicsParameters);
     Shape shape;
     Meters semiMajorAxis;
     double eccentricity;

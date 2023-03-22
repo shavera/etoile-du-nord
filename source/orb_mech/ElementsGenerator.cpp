@@ -13,7 +13,7 @@ ElementsGenerator::Shape f_shape(const SpecificEnergy& energy){
   return ElementsGenerator::Shape::parabolic;
 }
 
-Meters f_semiMajorAxis(const OrbitalPhysicsParameters& physParam,
+Meters f_semiMajorAxis(const OrbitalKernel & physParam,
                        ElementsGenerator::Shape shape){
   if(ElementsGenerator::Shape::parabolic == shape){
     return Meters{std::nan("parabolic orbit - no semimajoraxis")};
@@ -72,12 +72,12 @@ double f_eccentricity(ElementsGenerator::Shape shape, const CartesianVector& ecc
 
 } // namespace
 
-ElementsGenerator::ElementsGenerator(OrbitalPhysicsParameters physicsParameters)
+ElementsGenerator::ElementsGenerator(OrbitalKernel physicsParameters)
   : physicsParameters_{std::move(physicsParameters)}
   , cache_{physicsParameters_}
 {}
 
-ElementsGenerator::Cache::Cache(const OrbitalPhysicsParameters& physParam)
+ElementsGenerator::Cache::Cache(const OrbitalKernel & physParam)
   : shape{f_shape(physParam.specificEnergy())}
   , semiMajorAxis{f_semiMajorAxis(physParam, shape)}
   , eccentricity{f_eccentricity(shape, physParam.eccentricityVector())}

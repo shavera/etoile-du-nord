@@ -12,9 +12,9 @@ namespace orb_mech {
    * class not struct, because we need to encapsulate the parameters to ensure
    * operations performed are performed on all together (assuring class invariance)
  */
-class OrbitalPhysicsParameters{
+class OrbitalKernel {
 public:
-  OrbitalPhysicsParameters(StandardGravParam standardGravParam, const StateVector& stateVector)
+  OrbitalKernel(StandardGravParam standardGravParam, const StateVector& stateVector)
       : stdGravParam_{standardGravParam}
       , specificEnergy_{specificOrbitalEnergy(stdGravParam_, stateVector)}
       , specificAngularMomentum_{specificAngularMomentum(stateVector)}

@@ -16,7 +16,7 @@ const auto kPi = std::numbers::pi;
 class ElementsGeneratorTest : public TestWithParam<std::string>{
 public:
   // should produce a trivial circular orbit
-  const OrbitalPhysicsParameters unitCircleParams{
+  const OrbitalKernel unitCircleParams{
     StandardGravParam{1},
         StateVector{
       PositionVector {{1},{},{}},
@@ -26,7 +26,7 @@ public:
 
   // should produce a trivial "orbit" which falls straight toward center
   // this actually forms an edge case to test a lot of orbital extrema
-  const OrbitalPhysicsParameters unitFreeFallParams{
+  const OrbitalKernel unitFreeFallParams{
       StandardGravParam{1},
       StateVector{
           PositionVector {{1},{},{}},
@@ -42,7 +42,7 @@ public:
   // for parabolic, 14 doesn't decompose easily, but will put it all along one
   // axis to allow for simplifications of hand calculations to double check
   // selecting grav param = 19 * 98 = 1862, which should cancel everything out
-  const OrbitalPhysicsParameters parabolicOrbitParams{
+  const OrbitalKernel parabolicOrbitParams{
       StandardGravParam{1862},
       StateVector{
           PositionVector {{6}, {-18}, {1}},
@@ -62,7 +62,7 @@ public:
   const ElementsGenerator parabolicOrbit{parabolicOrbitParams};
 
   // choosing something roughly physical/coplanar with normal right hand orbit
-  const OrbitalPhysicsParameters hyperbolicOrbitParams{
+  const OrbitalKernel hyperbolicOrbitParams{
       StandardGravParam{1862},
       StateVector{
           PositionVector {{18}, {6}, {1}},
@@ -82,7 +82,7 @@ public:
   const double hyperbolicEcc = hyperbolicOrbitParams.eccentricityVector().norm();
 
   // choosing something roughly physical/coplanar with left hand orbit
-  const OrbitalPhysicsParameters ellipticalOrbitParams{
+  const OrbitalKernel ellipticalOrbitParams{
       StandardGravParam{1862},
       StateVector{
           PositionVector {{-6}, {18}, {-1}},
@@ -101,7 +101,7 @@ public:
   // argPeri = acos((-195*-3+645*29)/(5*sqrt(34)*sqrt(455011)) = acos(19290/(5*sqrt(34*455011)) = acos(3858/sqrt(15470374)) = 11.2248489655°
   const double ellipticalEcc = ellipticalOrbitParams.eccentricityVector().norm();
 
-  const std::map<std::string, const OrbitalPhysicsParameters&> paramsMap{
+  const std::map<std::string, const OrbitalKernel &> paramsMap{
       {"unitCircle", unitCircleParams},
       {"freeFall", unitFreeFallParams},
       {"parabolic", parabolicOrbitParams},

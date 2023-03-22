@@ -9,7 +9,7 @@ target_sources(orb_mech_tests
         OrbitTest.cpp
         ElementsGeneratorTest.cpp
         OrbitalPhysicsMatrixTest.cpp
-        OrbitalPhysicsParametersTest.cpp
+        OrbitalKernelTest.cpp
         UnitsTest.cpp)
 
 target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gmock_main)
