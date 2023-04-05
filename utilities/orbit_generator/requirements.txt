@@ -1,0 +1,4 @@
+scipy # maybe only need numpy, but grabbing scipy if it's helpful
+black # for formatting
+pandas # data storage, hd5 file read/write
+tables # needed for hd5 file read/write
