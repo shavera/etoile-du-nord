@@ -235,9 +235,43 @@ TEST(EccentricityVectorTest, eccentricityVector){
   }
 }
 
-TEST(OrbitalPhysicsParametersCtorTest, TodoTest){
-  // need to add test of c'tor for the struct.
-  FAIL();
+/// @test Above tests capture a variety of edge cases, this is just to confirm the constructor behaves reasonably
+TEST(OrbitalKernelCtorTest, TodoTest){
+    {
+        SCOPED_TRACE("trivial case");
+        const StandardGravParam stdGravParam{0.5};
+        const StateVector stateVector{
+                PositionVector{{1},{0},{0}},
+                VelocityVector{{0},{1},{0}}
+        };
+        // this is the trivial circular case, so energy = 0
+        const SpecificEnergy expectedEnergy{0};
+        const SpecAngMomVector expectedAngMom{{0}, {0}, {1}};
+        const CartesianVector expectedEccVec{1, 0, 0};
+
+        OrbitalKernel kernel{stdGravParam, stateVector};
+        EXPECT_EQ(expectedEnergy.e, kernel.specificEnergy().e);
+        EXPECT_LT(expectedAngMom.rawVector().separation(kernel.specificAngularMomentum().rawVector()), 1e-6);
+        EXPECT_LT(expectedEccVec.separation(kernel.eccentricityVector()), 1e-6);
+    }
+    {
+        SCOPED_TRACE("nontrivial case");
+        // borrowing the Elliptical Orbit case from ElementsGeneratorTest
+        const StandardGravParam stdGravParam{1862};
+        const StateVector stateVector{
+            PositionVector {{-6}, {18}, {-1}},
+            VelocityVector {{12}, {4}, {3}}
+        };
+        // r = 19, v = 13: v^2/2-mu/r = -13.5
+        const SpecificEnergy expectedEnergy{-13.5};
+        const SpecAngMomVector expectedAngMom{{58}, {6}, {-240}};
+        const CartesianVector expectedEccVec{-195.0/931, 645.0/931, -31.0/931};
+
+        OrbitalKernel kernel{stdGravParam, stateVector};
+        EXPECT_EQ(expectedEnergy.e, kernel.specificEnergy().e);
+        EXPECT_LT(expectedAngMom.rawVector().separation(kernel.specificAngularMomentum().rawVector()), 1e-6);
+        EXPECT_LT(expectedEccVec.separation(kernel.eccentricityVector()), 1e-6);
+    }
 }
 
 } // namespace
