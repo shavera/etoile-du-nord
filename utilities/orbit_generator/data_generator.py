@@ -10,8 +10,8 @@ import newtonian_orbit
 
 
 def build_table(
-    timing_data: newtonian_orbit.DataTiming, mu, init_pos, init_vel, output_file
-) -> pd.DataFrame:
+    timing_data: newtonian_orbit.DataTiming, mu, init_pos, init_vel, out_store
+):
     test_data = {}
     orbit = newtonian_orbit.Orbit(
         mu, initial_position=init_pos, initial_velocity=init_vel
@@ -24,8 +24,8 @@ def build_table(
 
     df = pd.DataFrame.from_dict(test_data, orient="index", columns=col_index)
     df["rad"] = df.apply(lambda row: np.hypot(row.position.x, row.position.y), axis=1)
-    name = f"ts_{int(1000*timing_data.timestep_ms)}"
-    df.to_hdf(output_file, name)
+    name = f"/circles/ts_{int(1000*timing_data.timestep_ms)}"
+    out_store.put(name, df)
 
 
 def generate_true_data(radius, speed, time_stop) -> pd.DataFrame:
@@ -56,6 +56,7 @@ def generate_timings(stop_time_sec):
     timestep_bases = [1, 2, 5]
     # timestep_magnitudes = [0.001, 0.01, 0.1, 1, 10]
     timestep_magnitudes = [0.01, 0.1, 1, 10]
+    # timestep_magnitudes = [0.1, 1, 10]
 
     _timings = []
     _stop_time_ms = stop_time_sec * 1000
@@ -71,30 +72,30 @@ def generate_timings(stop_time_sec):
 
 if __name__ == "__main__":
     output_file_name = "physical_circles.h5"
+    with pd.HDFStore(output_file_name, mode="w") as h5_store:
+        # choose something semi-physical
+        _mu = 1e12
+        _rad = 1e6
+        _p = np.array([_rad, 0, 0])
+        _speed = np.sqrt(_mu / _rad)
+        _v = np.array([0, _speed, 0])
+        bound_generator = partial(
+            build_table,
+            mu=1e12,
+            init_pos=_p,
+            init_vel=_v,
+            out_store=h5_store,
+        )
 
-    # choose something semi-physical
-    _mu = 1e12
-    _rad = 1e6
-    _p = np.array([_rad, 0, 0])
-    _speed = np.sqrt(_mu / _rad)
-    _v = np.array([0, _speed, 0])
-    bound_generator = partial(
-        build_table,
-        mu=1e12,
-        init_pos=_p,
-        init_vel=_v,
-        output_file=output_file_name,
-    )
+        _stop_time_sec = 100
+        true_df = generate_true_data(_rad, _speed, _stop_time_sec)
 
-    _stop_time_sec = 100
-    true_df = generate_true_data(_rad, _speed, _stop_time_sec)
+        h5_store.put("/circles/true", true_df)
 
-    true_df.to_hdf(output_file_name, "true_circle")
+        timings = generate_timings(_stop_time_sec)
 
-    timings = generate_timings(_stop_time_sec)
-
-    start = time.time()
-    with concurrent.futures.ThreadPoolExecutor(14) as executor:
-        executor.map(bound_generator, timings)
-    stop = time.time()
-    print(f"data generated - {stop-start} sec")
+        start = time.time()
+        with concurrent.futures.ThreadPoolExecutor(14) as executor:
+            executor.map(bound_generator, timings)
+        stop = time.time()
+        print(f"data generated - {stop-start} sec")
