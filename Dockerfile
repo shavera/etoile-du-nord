@@ -1,6 +1,11 @@
 # syntax=docker/dockerfile:1.4
 FROM shavera/cmake-base AS builder
 
+RUN <<EOT
+  apt-get update -qq
+  apt-get install libeigen3-dev
+EOT
+
 # build edn
 WORKDIR /tmp/edn-build
 # Heredocs not working on github actions as of 13 March 2023

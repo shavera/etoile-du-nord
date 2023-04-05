@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 add_library(orb_mech)
 
-find_package(Eigen3 3.4 REQUIRED NO_MODULE)
+find_package(Eigen3 3.4 REQUIRED)
 
 target_sources(orb_mech
     PRIVATE

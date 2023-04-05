@@ -6,13 +6,13 @@ option(BUILD_TESTS "Build tests with project" ON)
 
 include(FetchContent)
 
-FetchContent_Declare(
-        eigen
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
-        GIT_TAG 3147391d # 3.4.0
-)
-
-FetchContent_MakeAvailable(eigen)
+#FetchContent_Declare(
+#        eigen
+#        GIT_REPOSITORY https://gitlab.com/libeigen/eigen
+#        GIT_TAG 3147391d # 3.4.0
+#)
+#
+#FetchContent_MakeAvailable(eigen)
 
 if(${BUILD_TESTS})
     FetchContent_Declare(
