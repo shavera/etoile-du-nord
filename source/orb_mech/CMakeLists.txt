@@ -8,7 +8,6 @@ target_sources(orb_mech
     PRIVATE
         Body.cpp
         CartesianVector.cpp
-        Orbit.cpp
         ElementsGenerator.cpp
         OrbitalKernel.cpp)
 

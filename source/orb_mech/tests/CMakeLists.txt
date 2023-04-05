@@ -6,7 +6,6 @@ target_sources(orb_mech_tests
     PRIVATE
         BodyTest.cpp
         CartesianVectorTest.cpp
-        OrbitTest.cpp
         ElementsGeneratorTest.cpp
         OrbitalPhysicsMatrixTest.cpp
         OrbitalKernelTest.cpp
