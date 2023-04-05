@@ -3,7 +3,7 @@ FROM shavera/cmake-base AS builder
 
 RUN <<EOT
   apt-get update -qq
-  apt-get install libeigen3-dev
+  apt-get install -qq libeigen3-dev
 EOT
 
 # build edn
