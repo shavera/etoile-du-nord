@@ -9,7 +9,8 @@ target_sources(orb_mech
         Body.cpp
         CartesianVector.cpp
         ElementsGenerator.cpp
-        OrbitalKernel.cpp)
+        OrbitalKernel.cpp
+        StateGenerator.cpp)
 
 target_include_directories(orb_mech PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

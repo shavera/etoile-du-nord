@@ -9,6 +9,7 @@ target_sources(orb_mech_tests
         ElementsGeneratorTest.cpp
         OrbitalPhysicsMatrixTest.cpp
         OrbitalKernelTest.cpp
+        StateGeneratorTest.cpp
         UnitsTest.cpp)
 
 target_link_libraries(orb_mech_tests PRIVATE orb_mech GTest::gmock_main)
