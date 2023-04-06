@@ -47,7 +47,7 @@ namespace orb_mech{
  */
 class ElementsGenerator {
 public:
-  explicit ElementsGenerator(OrbitalKernel kernel);
+  explicit ElementsGenerator(const OrbitalKernel& kernel);
 
   enum class Shape{elliptical, parabolic, hyperbolic};
 
@@ -154,14 +154,14 @@ public:
 
   [[nodiscard]] Meters semiLatusRectum() const{return cache_.semiLatusRectum;}
 
-private:
-  OrbitalKernel kernel_;
+  void refreshCache(const OrbitalKernel& kernel){}
 
+private:
   // one way to preserve invariance is to calculate this cache on construction
   // then, when we introduce physics/time updates, we add a mechanism to lock
   // the cache to external access, do our updates, then unlock the cache.
   struct Cache{
-    explicit Cache(const OrbitalKernel & physicsParameters);
+    explicit Cache(const OrbitalKernel& kernel);
     Shape shape;
     Meters semiMajorAxis;
     double eccentricity;

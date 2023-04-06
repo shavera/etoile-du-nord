@@ -90,12 +90,11 @@ Meters f_semiLatusRectumParabolic(double angularMomentumSquared, StandardGravPar
 
 } // namespace
 
-ElementsGenerator::ElementsGenerator(OrbitalKernel kernel)
-  : kernel_{std::move(kernel)}
-  , cache_{kernel_}
+ElementsGenerator::ElementsGenerator(const OrbitalKernel& kernel)
+  : cache_{kernel}
 {}
 
-ElementsGenerator::Cache::Cache(const OrbitalKernel & kernel)
+ElementsGenerator::Cache::Cache(const OrbitalKernel& kernel)
   : shape{f_shape(kernel.specificEnergy())}
   , semiMajorAxis{f_semiMajorAxis(kernel, shape)}
   , eccentricity{f_eccentricity(shape, kernel.eccentricityVector())}
