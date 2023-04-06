@@ -126,6 +126,10 @@ public:
     return *this;
   }
 
+  bool operator==(const Angle& other) const{
+    return rad_ == other.rad_;
+  }
+
 private:
   static double normalizeRadians(double radians){
     return std::remainder(radians, 2*std::numbers::pi);

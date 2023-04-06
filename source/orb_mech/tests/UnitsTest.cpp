@@ -25,6 +25,7 @@ TEST_P(AngleTests, fromRadians){
 
   EXPECT_EQ(datum.expectedRadians, angle.getRadians());
   EXPECT_EQ(datum.expectedDegrees, angle.getDegrees());
+  EXPECT_EQ(Angle::degrees(datum.expectedDegrees), angle);
 }
 
 TEST_P(AngleTests, fromDegrees){
@@ -33,6 +34,7 @@ TEST_P(AngleTests, fromDegrees){
 
   EXPECT_EQ(datum.expectedRadians, angle.getRadians());
   EXPECT_EQ(datum.expectedDegrees, angle.getDegrees());
+  EXPECT_EQ(Angle::radians(datum.expectedRadians), angle);
 }
 
 constexpr double kQuarterPi=kPi/4.0;
