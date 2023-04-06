@@ -47,7 +47,7 @@ namespace orb_mech{
  */
 class ElementsGenerator {
 public:
-  ElementsGenerator(OrbitalKernel physicsParameters);
+  explicit ElementsGenerator(OrbitalKernel kernel);
 
   enum class Shape{elliptical, parabolic, hyperbolic};
 
@@ -150,8 +150,12 @@ public:
   // do we need to maybe have a system of registering callbacks on physics updates?
   // or is it possible to just make sure we do our physics in the right order and it's irrelevant?
 
+  [[nodiscard]] Meters periapsisDistance() const{return cache_.periapsisDistance;}
+
+  [[nodiscard]] Meters semiLatusRectum() const{return cache_.semiLatusRectum;}
+
 private:
-  OrbitalKernel physicsParameters_;
+  OrbitalKernel kernel_;
 
   // one way to preserve invariance is to calculate this cache on construction
   // then, when we introduce physics/time updates, we add a mechanism to lock
@@ -161,12 +165,15 @@ private:
     Shape shape;
     Meters semiMajorAxis;
     double eccentricity;
+    double angMomSquared; // don't want to deal with units right now. This will have to do
     Seconds period;
     RadiansPerSecond sweep;
     Angle inclination;
     CartesianVector vectorOfAscendingNode;
     Angle longitudeOfAscendingNode;
     Angle argumentOfPeriapsis;
+    Meters semiLatusRectum;
+    Meters periapsisDistance;
   } cache_;
 };
 

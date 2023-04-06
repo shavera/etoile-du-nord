@@ -30,12 +30,12 @@ Seconds f_period(StandardGravParam stdGravParam, const Meters& semiMajorAxis,
   return {std::numeric_limits<double>::infinity()};
 }
 
-RadiansPerSecond f_sweep(ElementsGenerator::Shape shape, StandardGravParam stdGravParam, Meters semiMajorAxis, const SpecAngMomVector& angularMomentum){
-  if(ElementsGenerator::Shape::parabolic == shape){
-    const double hSquared = angularMomentum.rawVector().dot(angularMomentum.rawVector());
-    const double r_p = hSquared/(2*stdGravParam.mu);
+RadiansPerSecond f_sweepParabolic(double angMomSquared, StandardGravParam stdGravParam){
+    const double r_p = angMomSquared/(2*stdGravParam.mu);
     return {sqrt(stdGravParam.mu/(2*pow(r_p, 3)))};
-  }
+}
+
+RadiansPerSecond f_sweep(StandardGravParam stdGravParam, Meters semiMajorAxis){
   const auto aCubedAbsVal = std::fabs(std::pow(semiMajorAxis.m, 3));
   return {sqrt(stdGravParam.mu/aCubedAbsVal)};
 }
@@ -70,23 +70,53 @@ double f_eccentricity(ElementsGenerator::Shape shape, const CartesianVector& ecc
   return eccVec.norm();
 }
 
+// for use in non-parabolic cases
+Meters f_periapsisDistance(Meters semiMajorAxis, double eccentricity){
+  return {semiMajorAxis.m*(1-eccentricity)};
+}
+
+// needed for parabolae
+Meters f_periapsisDistanceParabolic(Meters semiLatusRectum){
+  return {semiLatusRectum.m/2};
+}
+
+Meters f_semiLatusRectum(Meters semiMajorAxis, double eccentricity){
+  return {semiMajorAxis.m*(1-eccentricity*eccentricity)};
+}
+
+Meters f_semiLatusRectumParabolic(double angularMomentumSquared, StandardGravParam stdGravParam){
+  return {angularMomentumSquared/stdGravParam.mu};
+}
+
 } // namespace
 
-ElementsGenerator::ElementsGenerator(OrbitalKernel physicsParameters)
-  : physicsParameters_{std::move(physicsParameters)}
-  , cache_{physicsParameters_}
+ElementsGenerator::ElementsGenerator(OrbitalKernel kernel)
+  : kernel_{std::move(kernel)}
+  , cache_{kernel_}
 {}
 
-ElementsGenerator::Cache::Cache(const OrbitalKernel & physParam)
-  : shape{f_shape(physParam.specificEnergy())}
-  , semiMajorAxis{f_semiMajorAxis(physParam, shape)}
-  , eccentricity{f_eccentricity(shape, physParam.eccentricityVector())}
-  , period{f_period(physParam.stdGravParam(), semiMajorAxis, shape)}
-  , sweep{f_sweep(shape, physParam.stdGravParam(), semiMajorAxis, physParam.specificAngularMomentum())}
-  , inclination{f_inclination(physParam.specificAngularMomentum())}
-  , vectorOfAscendingNode{f_ascNodeVec(physParam.specificAngularMomentum())}
+ElementsGenerator::Cache::Cache(const OrbitalKernel & kernel)
+  : shape{f_shape(kernel.specificEnergy())}
+  , semiMajorAxis{f_semiMajorAxis(kernel, shape)}
+  , eccentricity{f_eccentricity(shape, kernel.eccentricityVector())}
+  , angMomSquared{kernel.specificAngularMomentum().rawVector().dot(kernel.specificAngularMomentum().rawVector())}
+  , period{f_period(kernel.stdGravParam(), semiMajorAxis, shape)}
+  , sweep{
+          Shape::parabolic == shape ?
+                f_sweepParabolic(angMomSquared, kernel.stdGravParam())
+                : f_sweep(kernel.stdGravParam(), semiMajorAxis)}
+  , inclination{f_inclination(kernel.specificAngularMomentum())}
+  , vectorOfAscendingNode{f_ascNodeVec(kernel.specificAngularMomentum())}
   , longitudeOfAscendingNode{f_longitudeAscNode(vectorOfAscendingNode)}
-  , argumentOfPeriapsis{f_argumentOfPeriapsis(vectorOfAscendingNode, physParam.eccentricityVector())}
+  , argumentOfPeriapsis{f_argumentOfPeriapsis(vectorOfAscendingNode, kernel.eccentricityVector())}
+  , semiLatusRectum{
+          Shape::parabolic == shape ?
+                                    f_semiLatusRectumParabolic(angMomSquared, kernel.stdGravParam())
+                                    : f_semiLatusRectum(semiMajorAxis, eccentricity)}
+  , periapsisDistance{
+          Shape::parabolic == shape ?
+                f_periapsisDistanceParabolic(semiLatusRectum)
+                : f_periapsisDistance(semiMajorAxis, eccentricity)}
 {}
 
 } // namespace orb_mech

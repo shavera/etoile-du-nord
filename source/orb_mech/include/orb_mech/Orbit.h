@@ -13,6 +13,13 @@ struct OrbitalElements{
       longitudeOfAscendingNode,
       argumentOfPeriapsis,
       meanAnomalyAtEpoch;
+
+  struct AuxiliaryValues{
+    Meters periapsisDistance;
+    Meters semiLatusRectum;
+  } auxiliaryValues;
 };
+
+
 
 } // namespace orb_mech

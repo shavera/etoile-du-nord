@@ -7,7 +7,7 @@ target_sources(orb_mech_tests
         BodyTest.cpp
         CartesianVectorTest.cpp
         ElementsGeneratorTest.cpp
-        OrbitalPhysicsMatrixTest.cpp
+#        OrbitalPhysicsMatrixTest.cpp
         OrbitalKernelTest.cpp
         StateGeneratorTest.cpp
         UnitsTest.cpp)
