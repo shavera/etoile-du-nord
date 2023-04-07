@@ -13,21 +13,22 @@ EllipticalSolver::EllipticalSolver(const CartesianVector& eccentricityVector,
   , meanAnomalyAtEpoch_{meanAnomalyFromState(eccentricityVector, positionAtEpoch)}
 {}
 
-void EllipticalSolver::updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector & positionVector, Seconds epoch){
+void EllipticalSolver::updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector& positionVector, Seconds epoch){
   mostRecentEpoch_ = epoch;
   meanAnomalyAtEpoch_ = meanAnomalyFromState(eccentricityVector, positionVector);
 }
 
-Angle EllipticalSolver::trueAnomalyAtTime(Seconds time) const{
-  return Angle::Zero();
-}
+//Angle EllipticalSolver::trueAnomalyAtTime(Seconds time) const{
+//  return Angle::Zero();
+//}
 
 Angle EllipticalSolver::meanAnomalyAtEpoch() const {
   return Angle::Zero();
 }
-AbstractSolver::VelocitySolver EllipticalSolver::velocitySolver() const {
-  return [](Angle, const ElementsGenerator&){return VelocityInfo{MetersPerSecond{}, Angle::Zero()};};
-}
+
+//AbstractSolver::VelocitySolver EllipticalSolver::velocitySolver() const {
+//  return [](Angle, const ElementsGenerator&){return VelocityInfo{MetersPerSecond{}, Angle::Zero()};};
+//}
 
 namespace {
 Angle trueAnomalyFromState(const CartesianVector& eccentricityVector, const PositionVector& position){
