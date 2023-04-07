@@ -16,7 +16,7 @@ const auto kPi = std::numbers::pi;
 class ElementsGeneratorTest : public TestWithParam<std::string>{
 public:
   struct TestExpectations{
-    ElementsGenerator::Shape shape;
+    OrbitShape shape;
     Meters semiMajorAxis;
     double eccentricity;
     Seconds period;
@@ -37,7 +37,7 @@ public:
     }};
   const ElementsGenerator unitCircleOrbit{unitCircleParams};
   const TestExpectations circleExpectations{
-    ElementsGenerator::Shape::elliptical,
+    OrbitShape::elliptical,
     {1},
     0.0, // circular orbits are ecc = 0
     {2*kPi},
@@ -60,7 +60,7 @@ public:
   };
   const ElementsGenerator unitFreeFallOrbit{unitFreeFallParams};
   const TestExpectations freefallExpectations{
-    ElementsGenerator::Shape::elliptical, // technically elliptical because negative energy
+    OrbitShape::elliptical, // technically elliptical because negative energy
     {0.5},
     1.0, // all radial orbits are ecc = 1
     {kPi/sqrt(2)},
@@ -100,7 +100,7 @@ public:
   // semi-latus rectum = 2*rp = h^2/mu = 63700/1862 = 34.2105263158
   const ElementsGenerator parabolicOrbit{parabolicOrbitParams};
   const TestExpectations parabolicExpectations{
-    ElementsGenerator::Shape::parabolic,
+    OrbitShape::parabolic,
     {std::nan("parabolic orbit - no semiMajor Axis")},
     1.0, // parabolic orbits are ecc = 1
     {std::numeric_limits<double>::infinity()},
@@ -133,7 +133,7 @@ public:
   // p (s-l r), q (d peri) are same as in elliptical case p = a(1-e^2), q=a(1-e), where a<0
   const double hyperbolicEcc = hyperbolicOrbitParams.eccentricityVector().norm();
   const TestExpectations hyperbolicExpectations{
-      ElementsGenerator::Shape::hyperbolic,
+      OrbitShape::hyperbolic,
       {-64.2068965517},
       hyperbolicEcc,
       {std::numeric_limits<double>::infinity()},
@@ -165,7 +165,7 @@ public:
   // argPeri = acos((-195*-3+645*29)/(5*sqrt(34)*sqrt(455011)) = acos(19290/(5*sqrt(34*455011)) = acos(3858/sqrt(15470374)) = 11.2248489655°
   const double ellipticalEcc = ellipticalOrbitParams.eccentricityVector().norm();
   const TestExpectations ellipticalExpectations{
-    ElementsGenerator::Shape::elliptical,
+    OrbitShape::elliptical,
     {68.962962963},
     ellipticalEcc,
     {83.3899855854},
@@ -204,7 +204,7 @@ public:
 
 TEST_P(ElementsGeneratorTest, shape){
   const ElementsGenerator & orbit = testCaseMap.at(GetParam());
-  const ElementsGenerator::Shape shape = testExpectationsMap.at(GetParam()).shape;
+  const OrbitShape shape = testExpectationsMap.at(GetParam()).shape;
 
   EXPECT_EQ(shape, orbit.shape());
 }
@@ -347,6 +347,11 @@ TEST_P(ElementsGeneratorTest, semiLatusRectum){
 
 INSTANTIATE_TEST_SUITE_P(ElementsGeneratorTest, ElementsGeneratorTest,
                          Values("unitCircle", "freeFall", "parabolic", "hyperbolic", "elliptical"));
+
+
+TEST(ElementsGeneratorRefreshTest, TODO){
+  FAIL() << "Need to add in tests of refresh cache";
+}
 
 } // namespace
 } // namespace orb_mech

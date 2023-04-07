@@ -7,23 +7,23 @@ namespace orb_mech{
 namespace{
 constexpr double kPi = std::numbers::pi;
 
-ElementsGenerator::Shape f_shape(const SpecificEnergy& energy){
-  if(energy.e < 0) { return ElementsGenerator::Shape::elliptical; }
-  if(energy.e > 0) { return ElementsGenerator::Shape::hyperbolic; }
-  return ElementsGenerator::Shape::parabolic;
+OrbitShape f_shape(const SpecificEnergy& energy){
+  if(energy.e < 0) { return OrbitShape::elliptical; }
+  if(energy.e > 0) { return OrbitShape::hyperbolic; }
+  return OrbitShape::parabolic;
 }
 
 Meters f_semiMajorAxis(const OrbitalKernel & physParam,
-                       ElementsGenerator::Shape shape){
-  if(ElementsGenerator::Shape::parabolic == shape){
+                       OrbitShape shape){
+  if(OrbitShape::parabolic == shape){
     return Meters{std::nan("parabolic orbit - no semimajoraxis")};
   }
   return {-physParam.stdGravParam().mu/(2.0*physParam.specificEnergy().e)};
 }
 
 Seconds f_period(StandardGravParam stdGravParam, const Meters& semiMajorAxis,
-                 ElementsGenerator::Shape shape){
-  if(ElementsGenerator::Shape::elliptical == shape){
+                 OrbitShape shape){
+  if(OrbitShape::elliptical == shape){
     const auto aCubed = std::pow(semiMajorAxis.m, 3);
     return {2*kPi*sqrt(aCubed/stdGravParam.mu)};
   }
@@ -62,9 +62,9 @@ Angle f_argumentOfPeriapsis(const CartesianVector& ascNodeVec, const CartesianVe
   return Angle::radians(std::acos(ascNodeVec.normalizedVector().dot(eccVec.normalizedVector())));
 }
 
-double f_eccentricity(ElementsGenerator::Shape shape, const CartesianVector& eccVec){
+double f_eccentricity(OrbitShape shape, const CartesianVector& eccVec){
   // Just to avoid rounding errors: if parabolic, return 1.0
-  if(ElementsGenerator::Shape::parabolic == shape){
+  if(OrbitShape::parabolic == shape){
     return 1.0;
   }
   return eccVec.norm();
@@ -100,8 +100,7 @@ ElementsGenerator::Cache::Cache(const OrbitalKernel& kernel)
   , eccentricity{f_eccentricity(shape, kernel.eccentricityVector())}
   , angMomSquared{kernel.specificAngularMomentum().rawVector().dot(kernel.specificAngularMomentum().rawVector())}
   , period{f_period(kernel.stdGravParam(), semiMajorAxis, shape)}
-  , sweep{
-          Shape::parabolic == shape ?
+  , sweep{OrbitShape::parabolic == shape ?
                 f_sweepParabolic(angMomSquared, kernel.stdGravParam())
                 : f_sweep(kernel.stdGravParam(), semiMajorAxis)}
   , inclination{f_inclination(kernel.specificAngularMomentum())}
@@ -109,11 +108,11 @@ ElementsGenerator::Cache::Cache(const OrbitalKernel& kernel)
   , longitudeOfAscendingNode{f_longitudeAscNode(vectorOfAscendingNode)}
   , argumentOfPeriapsis{f_argumentOfPeriapsis(vectorOfAscendingNode, kernel.eccentricityVector())}
   , semiLatusRectum{
-          Shape::parabolic == shape ?
+          OrbitShape::parabolic == shape ?
                                     f_semiLatusRectumParabolic(angMomSquared, kernel.stdGravParam())
                                     : f_semiLatusRectum(semiMajorAxis, eccentricity)}
   , periapsisDistance{
-          Shape::parabolic == shape ?
+          OrbitShape::parabolic == shape ?
                 f_periapsisDistanceParabolic(semiLatusRectum)
                 : f_periapsisDistance(semiMajorAxis, eccentricity)}
 {}

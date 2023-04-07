@@ -3,25 +3,30 @@
 namespace orb_mech {
 
 namespace {
-Angle trueAnomalyFromState(const CartesianVector& eccentricityVector, const PositionVector& position);
-
-Angle eccentricAnomalyFromTrueAnomaly(Angle trueAnomaly, double eccentricity);
-
-Angle meanAnomalyFromEccentricAnomaly(Angle eccentricAnomaly, double eccentricity);
-
 Angle meanAnomalyFromState(const CartesianVector& eccentricityVector, const PositionVector& position);
 } // namespace
 
-EllipticalSolver::EllipticalSolver(const ElementsGenerator& elementsGenerator,
-                                   Seconds epochTime,
-                                   const PositionVector& positionAtEpoch)
-  : AbstractSolver{elementsGenerator, epochTime}
-//  , meanAnomalyAtEpoch_{meanAnomalyFromState(elementsGenerator.kernel().eccentricityVector(), positionAtEpoch)}
-  , meanAnomalyAtEpoch_{Angle::Zero()}
+EllipticalSolver::EllipticalSolver(const CartesianVector& eccentricityVector,
+                                   const PositionVector& positionAtEpoch,
+                                   Seconds epochTime)
+  : AbstractSolver{epochTime}
+  , meanAnomalyAtEpoch_{meanAnomalyFromState(eccentricityVector, positionAtEpoch)}
 {}
 
-StateVector EllipticalSolver::stateAtTime(Seconds time) const{
-  return StateVector{{{},{},{}},{{},{},{}}};
+void EllipticalSolver::updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector & positionVector, Seconds epoch){
+  mostRecentEpoch_ = epoch;
+  meanAnomalyAtEpoch_ = meanAnomalyFromState(eccentricityVector, positionVector);
+}
+
+Angle EllipticalSolver::trueAnomalyAtTime(Seconds time) const{
+  return Angle::Zero();
+}
+
+Angle EllipticalSolver::meanAnomalyAtEpoch() const {
+  return Angle::Zero();
+}
+AbstractSolver::VelocitySolver EllipticalSolver::velocitySolver() const {
+  return [](Angle, const ElementsGenerator&){return VelocityInfo{MetersPerSecond{}, Angle::Zero()};};
 }
 
 namespace {

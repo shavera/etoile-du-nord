@@ -6,11 +6,17 @@ namespace orb_mech {
 
 class EllipticalSolver : public AbstractSolver{
 public:
-  EllipticalSolver(const ElementsGenerator& elementsGenerator,
-                   Seconds epochTime,
-                   const PositionVector& positionAtEpoch);
+  EllipticalSolver(const CartesianVector& eccentricityVector,
+                   const PositionVector& positionAtEpoch,
+                   Seconds epochTime);
 
-  [[nodiscard]] StateVector stateAtTime(Seconds time) const override;
+  void updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector & positionVector, Seconds epoch) override;
+
+  [[nodiscard]] Angle meanAnomalyAtEpoch() const override;
+
+  [[nodiscard]] Angle trueAnomalyAtTime(Seconds time) const override;
+
+  [[nodiscard]] VelocitySolver velocitySolver() const override;
 
 private:
   Angle meanAnomalyAtEpoch_{Angle::Zero()};

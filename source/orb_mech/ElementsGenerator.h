@@ -48,15 +48,14 @@ namespace orb_mech{
 class ElementsGenerator {
 public:
   explicit ElementsGenerator(const OrbitalKernel& kernel);
-
-  enum class Shape{elliptical, parabolic, hyperbolic};
+  virtual ~ElementsGenerator() = default;
 
   /**
    * What kind of conic section is the orbit? Useful to determine if you need
    * to check
    * @return
    */
-  [[nodiscard]] Shape shape() const{ return cache_.shape; }
+  [[nodiscard]] OrbitShape shape() const{ return cache_.shape; }
 
   /**
    * SemiMajor Axis - using convention where negative values for hyperbolic orbits
@@ -154,7 +153,7 @@ public:
 
   [[nodiscard]] Meters semiLatusRectum() const{return cache_.semiLatusRectum;}
 
-  void refreshCache(const OrbitalKernel& kernel){}
+  void refreshCache(const OrbitalKernel& kernel){cache_ = Cache{kernel};}
 
 private:
   // one way to preserve invariance is to calculate this cache on construction
@@ -162,7 +161,7 @@ private:
   // the cache to external access, do our updates, then unlock the cache.
   struct Cache{
     explicit Cache(const OrbitalKernel& kernel);
-    Shape shape;
+    OrbitShape shape;
     Meters semiMajorAxis;
     double eccentricity;
     double angMomSquared; // don't want to deal with units right now. This will have to do

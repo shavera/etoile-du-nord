@@ -1,5 +1,6 @@
 #pragma once
 
+#include "orb_mech/OrbitalElements.h"
 #include "Body.h"
 #include "CartesianVector.h"
 #include "units.h"
@@ -7,20 +8,6 @@
 #include <memory>
 
 namespace orb_mech{
-
-struct OrbitalElements{
-  Meters semiMajorAxis;
-  double eccentricity;
-  Angle inclination,
-      longitudeOfAscendingNode,
-      argumentOfPeriapsis,
-      meanAnomalyAtEpoch;
-
-  struct AuxiliaryValues{
-    Meters periapsisDistance;
-    Meters semiLatusRectum;
-  } auxiliaryValues;
-};
 
 /// Interface to the overall orbital mechanics problem for one specific object in orbit
 class Orbit{
