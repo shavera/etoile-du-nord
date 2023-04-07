@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OrbitalKernel.h"
+#include "orb_mech/OrbitalElements.h"
 #include "orb_mech/units.h"
 
 #include <memory>

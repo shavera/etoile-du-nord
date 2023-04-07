@@ -6,11 +6,9 @@ namespace orb_mech {
 
 class EllipticalSolver : public AbstractSolver{
 public:
-  EllipticalSolver(const CartesianVector& eccentricityVector,
-                   const PositionVector& positionAtEpoch,
-                   Seconds epochTime);
+  EllipticalSolver(const OrbitalKernel& kernel);
 
-  void updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector& positionVector, Seconds epoch) override;
+  void updateState() override;
 
   [[nodiscard]] Angle meanAnomalyAtEpoch() const override;
 

@@ -1,8 +1,7 @@
 #pragma once
 
-#include "orb_mech/CartesianVector.h"
-#include "orb_mech/OrbitalElements.h"
 #include "orb_mech/units.h"
+#include "OrbitalKernel.h"
 
 #include <functional>
 
@@ -16,13 +15,11 @@ class ElementsGenerator;
  */
 class AbstractSolver {
 public:
-  explicit AbstractSolver(Seconds epoch) : mostRecentEpoch_{epoch} {}
+  explicit AbstractSolver(const OrbitalKernel& kernel) : kernel_{kernel} {}
 
   virtual ~AbstractSolver() = default;
 
-  virtual void updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector& positionVector, Seconds epoch) = 0;
-
-  [[nodiscard]] Seconds mostRecentEpoch() const {return mostRecentEpoch_;}
+  virtual void updateState() = 0;
 
   [[nodiscard]] virtual Angle meanAnomalyAtEpoch() const = 0;
 
@@ -36,7 +33,7 @@ public:
 //  [[nodiscard]] virtual VelocitySolver velocitySolver() const = 0;
 
 protected:
-  Seconds mostRecentEpoch_{0};
+  const OrbitalKernel& kernel_;
 };
 
 } // namespace orb_mech

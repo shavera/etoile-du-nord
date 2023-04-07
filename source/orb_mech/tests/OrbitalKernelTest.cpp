@@ -249,7 +249,7 @@ TEST(OrbitalKernelCtorTest, TodoTest){
         const SpecAngMomVector expectedAngMom{{0}, {0}, {1}};
         const CartesianVector expectedEccVec{1, 0, 0};
 
-        OrbitalKernel kernel{stdGravParam, stateVector};
+        OrbitalKernel kernel{stdGravParam, stateVector, {0}};
         EXPECT_EQ(expectedEnergy.e, kernel.specificEnergy().e);
         EXPECT_LT(expectedAngMom.rawVector().separation(kernel.specificAngularMomentum().rawVector()), 1e-6);
         EXPECT_LT(expectedEccVec.separation(kernel.eccentricityVector()), 1e-6);
@@ -267,7 +267,7 @@ TEST(OrbitalKernelCtorTest, TodoTest){
         const SpecAngMomVector expectedAngMom{{58}, {6}, {-240}};
         const CartesianVector expectedEccVec{-195.0/931, 645.0/931, -31.0/931};
 
-        OrbitalKernel kernel{stdGravParam, stateVector};
+        OrbitalKernel kernel{stdGravParam, stateVector, {0}};
         EXPECT_EQ(expectedEnergy.e, kernel.specificEnergy().e);
         EXPECT_LT(expectedAngMom.rawVector().separation(kernel.specificAngularMomentum().rawVector()), 1e-6);
         EXPECT_LT(expectedEccVec.separation(kernel.eccentricityVector()), 1e-6);

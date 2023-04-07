@@ -34,7 +34,7 @@ public:
         StateVector{
       PositionVector {{1},{},{}},
         VelocityVector {{}, {1}, {}}
-    }};
+    },{}};
   const ElementsGenerator unitCircleOrbit{unitCircleParams};
   const TestExpectations circleExpectations{
     OrbitShape::elliptical,
@@ -56,7 +56,7 @@ public:
       StateVector{
           PositionVector {{1},{},{}},
           VelocityVector {{},{},{}}
-      }
+      },{}
   };
   const ElementsGenerator unitFreeFallOrbit{unitFreeFallParams};
   const TestExpectations freefallExpectations{
@@ -84,7 +84,7 @@ public:
       StateVector{
           PositionVector {{6}, {-18}, {1}},
           VelocityVector {{14}, {}, {}}
-      }
+      },{}
   };
   // ang mom = (0, 14, -252) = 70*sqrt(13); h^2 = 63700; norm = (0, 1/(5sqrt(13), 18/(5sqrt(13))
   // rp = h^2 / 2*mu = 17.1052631579; M=sqrt(mu/(2*rp^3))=0.4313007372
@@ -118,7 +118,7 @@ public:
       StateVector{
           PositionVector {{18}, {6}, {1}},
           VelocityVector {{-10}, {11}, {-2}}
-      }
+      },{}
   };
   const ElementsGenerator hyperbolicOrbit{hyperbolicOrbitParams};
   // ang mom = {-23, 26, 258} = 13*sqrt(401); norm = (-23/13sqrt(401), 26/13sqrt(401), 258/13sqrt(401))
@@ -149,9 +149,13 @@ public:
   const OrbitalKernel ellipticalOrbitParams{
       StandardGravParam{1862},
       StateVector{
-          PositionVector {{-6}, {18}, {-1}},
-          VelocityVector {{12}, {4}, {3}}
-      }
+              PositionVector{{-6},
+                             {18},
+                             {-1}},
+              VelocityVector{{12},
+                             {4},
+                             {3}}
+      },{}
   };
   const ElementsGenerator ellipticalOrbit{ellipticalOrbitParams};
   // ang mom = {58, 6, -240} = 10*sqrt(610); norm = (29/5sqrt(610), 3/5sqrt(610), -120/5sqrt(610)))
@@ -203,14 +207,14 @@ public:
 };
 
 TEST_P(ElementsGeneratorTest, shape){
-  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
+  const ElementsGenerator& orbit = testCaseMap.at(GetParam());
   const OrbitShape shape = testExpectationsMap.at(GetParam()).shape;
 
   EXPECT_EQ(shape, orbit.shape());
 }
 
 TEST_P(ElementsGeneratorTest, semiMajorAxis){
-  const ElementsGenerator & orbit = testCaseMap.at(GetParam());
+  const ElementsGenerator& orbit = testCaseMap.at(GetParam());
   const Meters& expectedSemiMajorAxis = testExpectationsMap.at(GetParam()).semiMajorAxis;
 
   const auto actualSemiMajorAxis = orbit.semiMajorAxis();
@@ -225,7 +229,7 @@ TEST_P(ElementsGeneratorTest, semiMajorAxis){
 
 TEST_P(ElementsGeneratorTest, eccentricity){
   const auto caseName = GetParam();
-  const ElementsGenerator & orbit = testCaseMap.at(caseName);
+  const ElementsGenerator& orbit = testCaseMap.at(caseName);
   const double expectedEccentricity = testExpectationsMap.at(caseName).eccentricity;
 
   // Since we're indirectly calculating eccentricity above, make sure they align

@@ -14,11 +14,13 @@ namespace orb_mech {
  */
 class OrbitalKernel {
 public:
-  OrbitalKernel(StandardGravParam standardGravParam, const StateVector& stateVector)
+  OrbitalKernel(StandardGravParam standardGravParam, StateVector stateVector, Seconds epoch)
       : stdGravParam_{standardGravParam}
-      , specificEnergy_{specificOrbitalEnergy(stdGravParam_, stateVector)}
-      , specificAngularMomentum_{specificAngularMomentum(stateVector)}
-      , eccentricityVector_{eccentricityVector(standardGravParam, stateVector, specificAngularMomentum_)}
+      , stateAtEpoch_{std::move(stateVector)}
+      , epoch_{epoch}
+      , specificEnergy_{specificOrbitalEnergy(stdGravParam_, stateAtEpoch_)}
+      , specificAngularMomentum_{specificAngularMomentum(stateAtEpoch_)}
+      , eccentricityVector_{eccentricityVector(standardGravParam, stateAtEpoch_, specificAngularMomentum_)}
   {}
   /**
    * @brief Calculate the specific orbital energy for an orbit
@@ -92,8 +94,14 @@ public:
 
   [[nodiscard]] const CartesianVector& eccentricityVector() const{return eccentricityVector_;}
 
+  [[nodiscard]] const StateVector& stateAtEpoch() const{return stateAtEpoch_;}
+
+  [[nodiscard]] Seconds epoch() const {return epoch_;}
+
 private:
   StandardGravParam stdGravParam_;
+  StateVector stateAtEpoch_;
+  Seconds epoch_;
   SpecificEnergy specificEnergy_;
   SpecAngMomVector specificAngularMomentum_;
   CartesianVector eccentricityVector_;

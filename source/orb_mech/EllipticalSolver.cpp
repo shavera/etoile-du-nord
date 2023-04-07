@@ -3,19 +3,17 @@
 namespace orb_mech {
 
 namespace {
-Angle meanAnomalyFromState(const CartesianVector& eccentricityVector, const PositionVector& position);
+Angle meanAnomalyFromState(const OrbitalKernel& kernel);
 } // namespace
 
-EllipticalSolver::EllipticalSolver(const CartesianVector& eccentricityVector,
-                                   const PositionVector& positionAtEpoch,
-                                   Seconds epochTime)
-  : AbstractSolver{epochTime}
-  , meanAnomalyAtEpoch_{meanAnomalyFromState(eccentricityVector, positionAtEpoch)}
-{}
+EllipticalSolver::EllipticalSolver(const OrbitalKernel& kernel)
+  : AbstractSolver{kernel}
+{
+    meanAnomalyAtEpoch_ = meanAnomalyFromState(kernel);
+}
 
-void EllipticalSolver::updateStateAtEpoch(const CartesianVector& eccentricityVector, const PositionVector& positionVector, Seconds epoch){
-  mostRecentEpoch_ = epoch;
-  meanAnomalyAtEpoch_ = meanAnomalyFromState(eccentricityVector, positionVector);
+void EllipticalSolver::updateState(){
+  meanAnomalyAtEpoch_ = meanAnomalyFromState(kernel_);
 }
 
 //Angle EllipticalSolver::trueAnomalyAtTime(Seconds time) const{
@@ -31,7 +29,7 @@ Angle EllipticalSolver::meanAnomalyAtEpoch() const {
 //}
 
 namespace {
-Angle trueAnomalyFromState(const CartesianVector& eccentricityVector, const PositionVector& position){
+Angle trueAnomalyFromState(const CartesianVector& eccentricityVector, const StateVector& state){
   return Angle::Zero();
 }
 
@@ -43,9 +41,9 @@ Angle meanAnomalyFromEccentricAnomaly(Angle eccentricAnomaly, double eccentricit
   return Angle::Zero();
 }
 
-Angle meanAnomalyFromState(const CartesianVector& eccentricityVector, const PositionVector& position){
-  const auto trueAnomaly = trueAnomalyFromState(eccentricityVector, position);
-  const double eccentricity = eccentricityVector.norm();
+Angle meanAnomalyFromState(const OrbitalKernel& kernel){
+  const auto trueAnomaly = trueAnomalyFromState(kernel.eccentricityVector(), kernel.stateAtEpoch());
+  const double eccentricity = kernel.eccentricityVector().norm();
   const auto eccAnomaly = eccentricAnomalyFromTrueAnomaly(trueAnomaly, eccentricity);
   const auto meanAnomaly = meanAnomalyFromEccentricAnomaly(eccAnomaly, eccentricity);
   return meanAnomaly;
