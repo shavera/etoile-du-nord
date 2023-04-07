@@ -1,7 +1,7 @@
 #pragma once
 
-#include "orb_mech/units.h"
 #include "OrbitalKernel.h"
+#include "orb_mech/units.h"
 
 #include <functional>
 
@@ -14,7 +14,7 @@ class ElementsGenerator;
  *
  */
 class AbstractSolver {
-public:
+ public:
   explicit AbstractSolver(const OrbitalKernel& kernel) : kernel_{kernel} {}
 
   virtual ~AbstractSolver() = default;
@@ -23,17 +23,18 @@ public:
 
   [[nodiscard]] virtual Angle meanAnomalyAtEpoch() const = 0;
 
-//  [[nodiscard]] virtual Angle trueAnomalyAtTime(Seconds time) const = 0;
-//
-//  struct VelocityInfo{
-//    MetersPerSecond speed;
-//    Angle angle;
-//  };
-//  using VelocitySolver = std::function<VelocityInfo(Angle trueAnomaly, const ElementsGenerator& elementsGenerator)>;
-//  [[nodiscard]] virtual VelocitySolver velocitySolver() const = 0;
+  //  [[nodiscard]] virtual Angle trueAnomalyAtTime(Seconds time) const = 0;
+  //
+  //  struct VelocityInfo{
+  //    MetersPerSecond speed;
+  //    Angle angle;
+  //  };
+  //  using VelocitySolver = std::function<VelocityInfo(Angle trueAnomaly, const
+  //  ElementsGenerator& elementsGenerator)>;
+  //  [[nodiscard]] virtual VelocitySolver velocitySolver() const = 0;
 
-protected:
+ protected:
   const OrbitalKernel& kernel_;
 };
 
-} // namespace orb_mech
+}  // namespace orb_mech

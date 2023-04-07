@@ -3,7 +3,7 @@
 namespace orb_mech {
 
 class Body {
-public:
+ public:
   /**
    * Create a body
    * @param mass_kg - mass of object in kilograms - must be >0
@@ -18,11 +18,11 @@ public:
    *
    * @return standard gravitational parameter (m^3/s^2)
    */
-  [[nodiscard]] float stdGravParam() const {return stdGravParam_;}
+  [[nodiscard]] float stdGravParam() const { return stdGravParam_; }
 
-private:
+ private:
   const float mass_{0};
   const float stdGravParam_{0};
 };
 
-} // namespace orb_mech
+}  // namespace orb_mech
