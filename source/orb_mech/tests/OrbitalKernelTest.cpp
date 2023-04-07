@@ -211,7 +211,7 @@ TEST(EccentricityVectorTest, eccentricityVector) {
 
 /// @test Above tests capture a variety of edge cases, this is just to confirm
 /// the constructor behaves reasonably
-TEST(OrbitalKernelCtorTest, TodoTest) {
+TEST(OrbitalKernelCtorTest, ConstructorTest) {
   {
     SCOPED_TRACE("trivial case");
     const StandardGravParam stdGravParam{0.5};
@@ -221,13 +221,17 @@ TEST(OrbitalKernelCtorTest, TodoTest) {
     const SpecificEnergy expectedEnergy{0};
     const SpecAngMomVector expectedAngMom{{0}, {0}, {1}};
     const CartesianVector expectedEccVec{1, 0, 0};
+    const Seconds epoch{1.234};
 
-    OrbitalKernel kernel{stdGravParam, stateVector, {0}};
+    OrbitalKernel kernel{stdGravParam, stateVector, epoch};
     EXPECT_EQ(expectedEnergy.e, kernel.specificEnergy().e);
     EXPECT_LT(expectedAngMom.rawVector().separation(
                   kernel.specificAngularMomentum().rawVector()),
               1e-6);
     EXPECT_LT(expectedEccVec.separation(kernel.eccentricityVector()), 1e-6);
+    EXPECT_EQ(epoch, kernel.epoch());
+    EXPECT_EQ(stateVector.position, kernel.stateAtEpoch().position);
+    EXPECT_EQ(stateVector.velocity, kernel.stateAtEpoch().velocity);
   }
   {
     SCOPED_TRACE("nontrivial case");
@@ -247,6 +251,8 @@ TEST(OrbitalKernelCtorTest, TodoTest) {
                   kernel.specificAngularMomentum().rawVector()),
               1e-6);
     EXPECT_LT(expectedEccVec.separation(kernel.eccentricityVector()), 1e-6);
+    EXPECT_EQ(stateVector.position, kernel.stateAtEpoch().position);
+    EXPECT_EQ(stateVector.velocity, kernel.stateAtEpoch().velocity);
   }
 }
 
