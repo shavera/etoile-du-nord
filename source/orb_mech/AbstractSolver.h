@@ -19,7 +19,9 @@ class AbstractSolver {
 
   virtual ~AbstractSolver() = default;
 
-  virtual void updateState() = 0;
+  /// Not yet implemented. Meaningless without a way to update the Kernel first.
+  /// When implementing, return this to a pure virtual function.
+  [[maybe_unused]] virtual void updateState(){};
 
   [[nodiscard]] virtual Angle meanAnomalyAtEpoch() const = 0;
 

@@ -11,9 +11,9 @@ EllipticalSolver::EllipticalSolver(const OrbitalKernel& kernel)
   meanAnomalyAtEpoch_ = meanAnomalyFromState(kernel);
 }
 
-void EllipticalSolver::updateState() {
-  meanAnomalyAtEpoch_ = meanAnomalyFromState(kernel_);
-}
+//void EllipticalSolver::updateState() {
+//  meanAnomalyAtEpoch_ = meanAnomalyFromState(kernel_);
+//}
 
 // Angle EllipticalSolver::trueAnomalyAtTime(Seconds time) const{
 //   return Angle::Zero();

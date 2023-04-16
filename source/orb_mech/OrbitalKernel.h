@@ -52,6 +52,7 @@ class OrbitalKernel {
    * initialized "at" zero, the function is designed to forbid such a case and
    * throw an exception.
    *
+   * @todo change this to invalid argument error
    * @throws std::runtime_error if position vector in stateVector has zero
    * magnitude
    *
